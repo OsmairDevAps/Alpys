@@ -27,9 +27,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="transaction"
+        name="buy"
         options={{
-          title: 'Movimentação',
+          title: 'Compras',
+          tabBarIcon: ({ color }) => <TabBarIcon name="shopping-cart" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="sale"
+        options={{
+          title: 'Vendas',
           tabBarIcon: ({ color }) => <TabBarIcon name="dollar" color={color} />,
         }}
       />

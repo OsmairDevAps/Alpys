@@ -18,7 +18,9 @@ export default function ItemList({ item }: Props) {
     <View className='w-full p-4 bg-slate-50 rounded mt-2'>
       <Text>{item.client}</Text>
       <View className='flex flex-row justify-between items-center'>
-        <Text className='w-1/2'>{item.price}</Text>
+        <Text className='w-1/2'>
+          {Intl.NumberFormat('pt-BR', {style: 'currency', currency:'BRL'}).format(item.price)}
+        </Text>
         <Text className='w-1/2 text-right'>{item.amount} unid(s)</Text>
       </View>
       <View className='flex flex-row justify-between items-center'>

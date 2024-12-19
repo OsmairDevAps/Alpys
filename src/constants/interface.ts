@@ -55,6 +55,9 @@ export interface IOrder {
   product_name: string;
   amount: number;
   price: number;
+  isdelivery: boolean;
+  deliveryfee: number;
+  address: string;
   obs: string;
 }
 export interface IIngredient {
@@ -75,6 +78,25 @@ export interface ITransaction {
   modality: string;
   kind: string;
   place: string;
+  product_name: string;
+  client_name: string;
+  amount: number;
+  price: number;
+  datetransaction: string;
+  ispaid: boolean;
+  stock_id: number;
+}
+export interface ITBuy {
+  id: number;
+  place: string;
+  kind: string;
+  product_name: string;
+  amount: number;
+  price: number;
+  datetransaction: string;
+}
+export interface ITSale {
+  id: number;
   product_name: string;
   client_name: string;
   amount: number;

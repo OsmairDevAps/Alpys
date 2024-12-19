@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Pressable, Switch, Text, View, Modal } from "react-native";
 import Button from "@/src/components/Button";
 import Header from "@/src/components/Header";
 import Input from "@/src/components/Input";
+import ListSale from "../screens/listsale";
+import { dataSale } from "@/src/constants/db";
 
 export default function Sales() {
   const [productName, setProductName] = useState('')
@@ -11,6 +13,12 @@ export default function Sales() {
   const [price, setPrice] = useState('')
   const [isPaid, setIsPaid] = useState(false)
   const [stockId, setStockId] = useState(0)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  
+
+  function openModal() {
+    setIsModalOpen(true)
+  }
 
   function handleSave() {
     const today = new Date();
@@ -34,40 +42,67 @@ export default function Sales() {
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-950'>
       <Header />
-      <Text className="text-white text-2xl">Vendas</Text>
+      <View className="flex flex-row w-96 h-14 justify-between items-center">
+        <Text className="text-white text-xl">Vendas</Text>
+        <Pressable onPress={openModal}>
+          <Text className="text-white text-xl">Listar</Text>
+        </Pressable>
+      </View>
 
       <View className="px-6">
-            <Input 
-              placeholder="Nome o Cliente"
-              keyboardType="default"
-              onChangeText={setClientName}
-              value={clientName}
-            />
+        <Input 
+          placeholder="Nome o Cliente"
+          keyboardType="default"
+          onChangeText={setClientName}
+          value={clientName}
+        />
 
-            <Input 
-              placeholder="Produto"
-              keyboardType="default"
-              onChangeText={setProductName}
-              value={productName}
-            />
+        <Input 
+          placeholder="Produto"
+          keyboardType="default"
+          onChangeText={setProductName}
+          value={productName}
+        />
 
-            <Input 
-              placeholder="Quantidade"
-              keyboardType="numeric"
-              onChangeText={setAmount}
-              value={amount}
-            />
+        <Input 
+          placeholder="Quantidade"
+          keyboardType="numeric"
+          onChangeText={setAmount}
+          value={amount}
+        />
 
-            <Input 
-              placeholder="Valor"
-              keyboardType="numeric"
-              onChangeText={setPrice}
-              value={price}
-            />
+        <Input 
+          placeholder="Valor"
+          keyboardType="numeric"
+          onChangeText={setPrice}
+          value={price}
+        />
 
-            <Button title="Salvar" onPress={handleSave} />
-          </View>
+        <View className="flex flex-row gap-4 justify-normal items-center h-24">
+          <Text className="text-orange-100">Produto pago?</Text>
+          <Switch
+            trackColor={{false: '#767577', true: '#dde6f5'}}
+            thumbColor={isPaid ? '#ffa726' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={setIsPaid}
+            value={isPaid}
+          />
+          <Text className="text-orange-100">{isPaid ? 'Sim' : 'Não'}</Text>
+        </View>
+
+        <Button title="Salvar" onPress={handleSave} />
+      </View>
  
+      <Modal
+        transparent={true}
+        animationType='slide'
+        visible={isModalOpen}
+        onRequestClose={() => {
+           setIsModalOpen(!isModalOpen)
+      }}>
+        <ListSale closeModal={setIsModalOpen} dataSale={dataSale} />
+      </Modal>
+
     </View>
   )
 }

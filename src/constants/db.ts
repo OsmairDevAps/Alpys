@@ -1,12 +1,12 @@
 export const LKind = [
-  'CHOCOLATE',
-  'LEITE CONDENSADO',
-  'CREME DE LEITE',
-  'MEL',
-  'FARINHA',
-  'AÇÚCAR',
-  'SAL',
-  'LEITE',
+  { key:'CHOCOLATE', value:'CHOCOLATE' },
+  { key:'LEITE CONDENSADO', value: 'LEITE CONDENSADO' },
+  { key:'CREME DE LEITE', value: 'CREME DE LEITE' },
+  { key:'MEL', value: 'MEL' },
+  { key:'FARINHA', value: 'FARINHA' },
+  { key:'AÇÚCAR', value: 'AÇÚCAR' },
+  { key:'SAL', value: 'SAL' },
+  { key:'LEITE', value: 'LEITE' }
 ]
 
 export const dataBuy = [
@@ -136,4 +136,16 @@ export const dataOrder = [
     address: '',
     obs: ''
   },
+]
+
+export const LClients = [
+  {key:'1' ,value: 'Osmair'},
+  {key:'2' ,value: 'Wanessa'},
+  {key:'3' ,value: 'Raphael'}
+]
+
+export const LProducts = [
+  {key: '1', value: 'Pão de mel' },
+  {key: '2', value: 'Bombom' },
+  {key: '3', value: 'Alfajor' },
 ]

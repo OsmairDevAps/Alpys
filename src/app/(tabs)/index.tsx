@@ -1,3 +1,4 @@
+//https://nativecn.vercel.app/docs/installation
 import { Text, View, FlatList, Dimensions, useWindowDimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit'
 import Header from '@/src/components/Header';
@@ -124,7 +125,7 @@ export default function Listagem() {
     <View className='flex flex-1 items-center justify-start bg-orange-950'>
       <Header />
 
-      <View className='w-full h-52 my-4'>
+      <View className='w-full h-48 my-4'>
         <LineChart
           data={dataChart}
           width={width}

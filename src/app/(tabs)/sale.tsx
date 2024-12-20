@@ -4,7 +4,8 @@ import Button from "@/src/components/Button";
 import Header from "@/src/components/Header";
 import Input from "@/src/components/Input";
 import ListSale from "../screens/listsale";
-import { dataSale } from "@/src/constants/db";
+import { SelectList } from 'react-native-dropdown-select-list';
+import { dataSale, LClients, LProducts } from "@/src/constants/db";
 
 export default function Sales() {
   const [productName, setProductName] = useState('')
@@ -15,7 +16,6 @@ export default function Sales() {
   const [stockId, setStockId] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
   
-
   function openModal() {
     setIsModalOpen(true)
   }
@@ -49,21 +49,25 @@ export default function Sales() {
         </Pressable>
       </View>
 
-      <View className="px-6">
-        <Input 
-          placeholder="Nome o Cliente"
-          keyboardType="default"
-          onChangeText={setClientName}
-          value={clientName}
+      <View className="px-6 w-full">
+        <SelectList
+          placeholder='Nome do Cliente'
+          boxStyles={{ backgroundColor: '#fdf7e5', marginBottom: 8, marginTop: 8 }}
+          dropdownStyles={{ backgroundColor: '#eaeaea' }}
+          setSelected={(val: string) => setClientName(val)}
+          data={LClients}
+          save="key"
         />
 
-        <Input 
-          placeholder="Produto"
-          keyboardType="default"
-          onChangeText={setProductName}
-          value={productName}
+        <SelectList
+          placeholder='Produto'
+          boxStyles={{ backgroundColor: '#fdf7e5', marginBottom: 8, marginTop: 8 }}
+          dropdownStyles={{ backgroundColor: '#eaeaea' }}
+          setSelected={(val: string) => setProductName(val)}
+          data={LProducts}
+          save="key"
         />
-
+ 
         <Input 
           placeholder="Quantidade"
           keyboardType="numeric"

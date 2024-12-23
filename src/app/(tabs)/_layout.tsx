@@ -14,6 +14,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: '#e78b00',
         tabBarActiveBackgroundColor: '#ffffff',
         tabBarInactiveBackgroundColor: '#e78b00',
@@ -32,6 +33,13 @@ export default function TabLayout() {
         options={{
           title: 'Compras',
           tabBarIcon: ({ color }) => <TabBarIcon name="shopping-cart" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="product"
+        options={{
+          title: 'Produtos',
+          tabBarIcon: ({ color }) => <TabBarIcon name="gift" color={color} />,
         }}
       />
       <Tabs.Screen

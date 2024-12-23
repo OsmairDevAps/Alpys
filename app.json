@@ -17,9 +17,10 @@
       "supportsTablet": true
     },
     "android": {
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#D45C05"
       }
     },
     "web": {
@@ -35,3 +36,4 @@
     }
   }
 }
+//https://www.netguru.com/blog/avoid-keyboard-react-native

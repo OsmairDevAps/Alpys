@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Text, View, Modal, FlatList, TouchableOpacity } from "react-native";
 import Header from "@/src/components/Header";
-import { dataSale } from "@/src/constants/db";
+import { dataProduct } from "@/src/constants/db";
 import { Feather } from "@expo/vector-icons";
 import FrmSale from "../screens/Form/sale";
+import FrmProduct from "../screens/Form/product";
 
-export default function Sales() {
+export default function Product() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   
   function openModal() {
@@ -17,47 +18,31 @@ export default function Sales() {
       <Header />
 
       <View className="flex flex-row justify-between items-center w-full px-4 h-10 mb-4">
-        <Text className="text-xl font-bold">VENDAS</Text>
+        <Text className="text-xl font-bold">PRODUTOS</Text>
         <TouchableOpacity onPress={openModal} className="flex flex-row justify-between items-center gap-2 bg-orange-500 p-1">
           <Feather name="plus-square" size={24} color="#ffffff" />
-          <Text className="text-white">Nova</Text>
+          <Text className="text-white">Novo</Text>
         </TouchableOpacity>
       </View>
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
-        data={dataSale}
+        data={dataProduct}
         keyExtractor={item => String(item.id)}
         renderItem={({ item }) => 
           <View className="mb-4">
             <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Cliente:</Text>
-              <Text className="text-lg">{item.client_name}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
               <Text className="text-lg font-bold">Produto:</Text>
-              <Text className="text-lg">{item.product_name}</Text>
+              <Text className="text-lg">{item.name}</Text>
             </View>
             <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Quantidade:</Text>
-              <Text className="text-lg">{item.amount}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Preço:</Text>
+              <Text className="text-lg font-bold">Valor:</Text>
               <Text className="text-lg">
                 {Intl.NumberFormat(
                   'pt-BR', 
                   {style: 'currency', currency: 'BRL'}
                   ).format(item.price)}
               </Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Data:</Text>
-              <Text className="text-lg">{item.datetransaction}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Pago?</Text>
-              <Text className="text-lg">{item.ispaid ? 'Sim' : 'Não'}</Text>
             </View>
           </View>
         }
@@ -70,7 +55,7 @@ export default function Sales() {
         onRequestClose={() => {
            setIsModalOpen(!isModalOpen)
       }}>
-        <FrmSale closeModal={setIsModalOpen} />
+        <FrmProduct closeModal={setIsModalOpen} />
       </Modal>
 
     </View>

@@ -1,108 +1,77 @@
-import { useState } from "react";
-import { Text, View, Modal, Pressable } from "react-native";
-import Button from "@/src/components/Button";
-import Header from "@/src/components/Header";
-import Input from "@/src/components/Input";
-import ListBuy from "../screens/listbuy";
-import { SelectList } from 'react-native-dropdown-select-list';
-import { dataBuy, LKind } from "@/src/constants/db";
+import { Feather } from '@expo/vector-icons'
+import { Text, View, FlatList, TouchableOpacity, Modal } from "react-native";
+import { useState } from 'react';
+import { dataBuy } from '@/src/constants/db';
+import FrmBuy from '../screens/Form/buy';
+import Header from '@/src/components/Header';
 
-export default function Transaction() {
+export default function Buy() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [place, setPlace] = useState('')
-  const [kind, setKind] = useState('')
-  const [productName, setProductName] = useState('')
-  const [amount, setAmount] = useState('')
-  const [price, setPrice] = useState('')
-  const [isPaid, setIsPaid] = useState(false)
-  const [stockId, setStockId] = useState(0)
   
   function openModal() {
     setIsModalOpen(true)
   }
 
-  function handleSave() {
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const year = today.getFullYear();
-    const formattedDate = `${day}/${month}/${year}`;
-
-    const data = {
-      modality: 'buy',
-      place: place,
-      kind: kind,
-      productName: productName,
-      amount: amount,
-      price: price,
-      dateTransaction: formattedDate,
-      isPaid: isPaid
-    }
-    console.log(data)
-  }
-
   return (
-    <View className='flex flex-1 items-center justify-start bg-orange-950'>
+    <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
-      
-      <View className="flex flex-row w-96 h-14 justify-between items-center">
-        <Text className="text-white text-xl">Compras</Text>
-        <Pressable onPress={openModal}>
-          <Text className="text-white text-xl">Listar</Text>
-        </Pressable>
+
+      <View className="flex flex-row justify-between items-center w-full px-4 h-10 mb-4">
+        <Text className="text-xl font-bold">COMPRAS</Text>
+        <TouchableOpacity onPress={openModal} className="flex flex-row justify-between items-center gap-2 bg-orange-500 p-1">
+          <Feather name="plus-square" size={24} color="#ffffff" />
+          <Text className="text-white">Nova</Text>
+        </TouchableOpacity>
       </View>
 
-      <View className="px-6 w-full">
-        <Input 
-          placeholder="Local da compra"
-          keyboardType="default"
-          onChangeText={setPlace}
-          value={place}
-        />
-
-        <SelectList
-          placeholder='Tipo de Produto'
-          boxStyles={{ backgroundColor: '#fdf7e5', marginBottom: 8, marginTop: 8 }}
-          dropdownStyles={{ backgroundColor: '#eaeaea' }}
-          setSelected={(val: string) => setKind(val)}
-          data={LKind}
-          save="key"
-        />
-
-        <Input 
-          placeholder="Produto"
-          keyboardType="default"
-          onChangeText={setProductName}
-          value={productName}
-        />
-
-        <Input 
-          placeholder="Quantidade"
-          keyboardType="numeric"
-          onChangeText={setAmount}
-          value={amount}
-        />
-
-        <Input 
-          placeholder="Valor"
-          keyboardType="numeric"
-          onChangeText={setPrice}
-          value={price}
-        />
-
-        <Button title="Salvar" onPress={handleSave} />
-      </View>
+      <FlatList 
+        style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
+        data={dataBuy}
+        keyExtractor={item => String(item.id)}
+        renderItem={({ item }) => 
+          <View className="mb-4">
+            <View className="flex flex-row gap-2">
+              <Text className="text-lg font-bold">Local da compra:</Text>
+              <Text className="text-lg">{item.place}</Text>
+            </View>
+            <View className="flex flex-row gap-2">
+              <Text className="text-lg font-bold">Tipo de produto:</Text>
+              <Text className="text-lg">{item.kind}</Text>
+            </View>
+            <View className="flex flex-row gap-2">
+              <Text className="text-lg font-bold">Produto:</Text>
+              <Text className="text-lg">{item.product_name}</Text>
+            </View>
+            <View className="flex flex-row gap-2">
+              <Text className="text-lg font-bold">Quantidade:</Text>
+              <Text className="text-lg">{item.amount}</Text>
+            </View>
+            <View className="flex flex-row gap-2">
+              <Text className="text-lg font-bold">Preço:</Text>
+              <Text className="text-lg">
+                {Intl.NumberFormat(
+                  'pt-BR', 
+                  {style: 'currency', currency: 'BRL'}
+                  ).format(item.price)}
+              </Text>
+            </View>
+            <View className="flex flex-row gap-2">
+              <Text className="text-lg font-bold">Data:</Text>
+              <Text className="text-lg">{item.datetransaction}</Text>
+            </View>
+          </View>
+        }
+      />
 
       <Modal
         transparent={true}
         animationType='slide'
         visible={isModalOpen}
         onRequestClose={() => {
-           setIsModalOpen(!isModalOpen)
+          setIsModalOpen(!isModalOpen)
       }}>
-        <ListBuy closeModal={setIsModalOpen} dataBuy={dataBuy} />
+        <FrmBuy closeModal={setIsModalOpen} />
       </Modal>
-
     </View>
   )
 }

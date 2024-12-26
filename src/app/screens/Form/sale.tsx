@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Switch, Text, View, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
+import { Switch, Text, View, KeyboardAvoidingView, Platform, Modal } from "react-native";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from 'react-native-dropdown-select-list';
 import { LClients, LProducts } from "@/src/constants/db";
-import { Feather } from "@expo/vector-icons";
 import { MaskedTextInput } from "react-native-mask-text";
+import FrmClient from "./client";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
@@ -17,7 +17,7 @@ export default function FrmSale({closeModal}:SaleProps) {
   const [amount, setAmount] = useState('')
   const [price, setPrice] = useState('')
   const [isPaid, setIsPaid] = useState(false)
-  const [stockId, setStockId] = useState(0)
+  const [isModalClientOpen, setIsModalClientOpen] = useState(false)
   
   function handleSave() {
     const today = new Date();
@@ -38,6 +38,10 @@ export default function FrmSale({closeModal}:SaleProps) {
     console.log(data)
   }
   
+  function openModalClient() {
+    setIsModalClientOpen(true)
+  }
+
   function handleClose() {
     closeModal(false)
   }
@@ -52,14 +56,17 @@ export default function FrmSale({closeModal}:SaleProps) {
           <Text className="text-lg font-bold text-orange-50">LANÇAMENTO DE VENDAS</Text>
         </View>
 
-        <SelectList
-          placeholder='Nome do Cliente'
-          boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', marginBottom: 8, marginTop: 8 }}
-          dropdownStyles={{ backgroundColor: '#eaeaea' }}
-          setSelected={(val: string) => setClientName(val)}
-          data={LClients}
-          save="key"
-        />
+        <View className="flex-row justify-between w-full gap-4">
+          <SelectList
+            placeholder='Nome do Cliente'
+            boxStyles={{ flex:1, width: 260, backgroundColor: '#fdf7e5', marginBottom: 8, marginTop: 8 }}
+            dropdownStyles={{ backgroundColor: '#eaeaea' }}
+            setSelected={(val: string) => setClientName(val)}
+            data={LClients}
+            save="key"
+          />
+          <Button title="+ Cliente" type="Evently" onPress={openModalClient} />
+        </View>
 
         <SelectList
           placeholder='Produto'
@@ -118,6 +125,17 @@ export default function FrmSale({closeModal}:SaleProps) {
         <Button title="Salvar" onPress={handleSave} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
       </View>
+
+      <Modal
+        transparent={true}
+        animationType='slide'
+        visible={isModalClientOpen}
+        onRequestClose={() => {
+           setIsModalClientOpen(!isModalClientOpen)
+      }}>
+        <FrmClient closeModal={setIsModalClientOpen} />
+      </Modal>
+
     </KeyboardAvoidingView>
   )
 }

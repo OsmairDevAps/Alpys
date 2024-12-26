@@ -1,27 +1,49 @@
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { useState } from "react";
-import { Text, View, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Text, View, KeyboardAvoidingView, Platform } from "react-native";
+import { useProductDatabase } from "@/src/database/useProductDatabase";
 import { MaskedTextInput } from "react-native-mask-text";
 
 type Props = {
   closeModal: (value: boolean) => void;
+  listProducts?: Function;
 }
 
-export default function FrmProduct({closeModal}:Props) {
+export default function FrmProduct({closeModal, listProducts}:Props) {
+  const productDatabase = useProductDatabase()
+  const [id, setId] = useState('')
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')
-  const [photo, setPhoto] = useState('')
+  const [photo, setPhoto] = useState('sem foto')
 
-  function handleSave() {
-    const data = {
-      name: name,
-      price: price,
-      photo: photo,
+  async function handleSave() {
+    try {
+      await productDatabase.create({name, price: Number(price), photo})
+      setId('')
+      setName('')
+      setPrice('')
+      setPhoto('sem foto')
+      listProducts
+      closeModal(false)
+    } catch (error) {
+      console.log(error)      
     }
-    console.log(data)
   }
+
+  async function handleUpdate() {
+    try {
+      await productDatabase.update({
+        id: Number(id), 
+        name, 
+        price: Number(price), 
+        photo
+      })
+    } catch (error) {
+      console.log(error)      
+    }
+  }
+
 
   function handleClose() {
     closeModal(false)
@@ -78,6 +100,7 @@ export default function FrmProduct({closeModal}:Props) {
 
         <Button title="Salvar" onPress={handleSave} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
+        
       </View>
     </KeyboardAvoidingView>
     )

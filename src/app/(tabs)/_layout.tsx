@@ -11,15 +11,20 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
 
+  
+
   return (
     <Tabs
       screenOptions={{
         tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: '#e78b00',
-        tabBarActiveBackgroundColor: '#ffffff',
-        tabBarInactiveBackgroundColor: '#e78b00',
-        tabBarInactiveTintColor: '#ffffff',
+        tabBarActiveTintColor: '#F97316',
+        tabBarActiveBackgroundColor: '#FFF7ED',
+        tabBarInactiveTintColor: '#FFF7ED',
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: '#F97316',
+          borderColor: '#F97316'
+        }
       }}>
       <Tabs.Screen
         name="index"

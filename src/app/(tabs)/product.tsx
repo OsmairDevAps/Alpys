@@ -1,17 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, View, Modal, FlatList, TouchableOpacity } from "react-native";
-import Header from "@/src/components/Header";
-import { dataProduct } from "@/src/constants/db";
-import { Feather } from "@expo/vector-icons";
-import FrmSale from "../screens/Form/sale";
+import { useProductDatabase } from "@/src/database/useProductDatabase";
 import FrmProduct from "../screens/Form/product";
+import Header from "@/src/components/Header";
+import { Feather } from "@expo/vector-icons";
+import { IProduct } from "@/src/constants/interface";
+import { CardProduct } from "@/src/components/Card/product";
 
 export default function Product() {
+  const productDatabase = useProductDatabase()
+  const [products, seProducts] = useState<IProduct[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  async function list() {
+    try {
+      const response = await productDatabase.list()
+      if(response) {
+        seProducts(response)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
   
+  async function handleDelete(id: number) {
+    try {
+      await productDatabase.remove(id)
+      list()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   function openModal() {
     setIsModalOpen(true)
   }
+
+  useEffect(() => {
+    list()
+  },[])
 
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
@@ -27,24 +54,11 @@ export default function Product() {
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
-        data={dataProduct}
+        data={products}
         keyExtractor={item => String(item.id)}
+        contentContainerStyle={{ gap: 16 }}
         renderItem={({ item }) => 
-          <View className="mb-4">
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Produto:</Text>
-              <Text className="text-lg">{item.name}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Valor:</Text>
-              <Text className="text-lg">
-                {Intl.NumberFormat(
-                  'pt-BR', 
-                  {style: 'currency', currency: 'BRL'}
-                  ).format(item.price)}
-              </Text>
-            </View>
-          </View>
+          <CardProduct item={item} onDelete={() => handleDelete(item.id)} />
         }
       />
  
@@ -55,7 +69,7 @@ export default function Product() {
         onRequestClose={() => {
            setIsModalOpen(!isModalOpen)
       }}>
-        <FrmProduct closeModal={setIsModalOpen} />
+        <FrmProduct closeModal={setIsModalOpen} listProducts={list} />
       </Modal>
 
     </View>

@@ -15,7 +15,7 @@ interface Props {
 
 export default function ItemList({ item }: Props) {
   return (
-    <View className='w-full p-4 bg-slate-50 rounded mt-2'>
+    <View className='w-full p-4 bg-orange-50 rounded mt-2'>
       <Text>{item.client}</Text>
       <View className='flex flex-row justify-between items-center'>
         <Text className='w-1/2'>

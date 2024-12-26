@@ -26,22 +26,19 @@ export interface IUser {
   password: string;
   photo: string;
 }
-export interface ICategory {
-  id: number;
-  name: string;
-}
+
 export interface IProduct {
   id: number;
-  categoryname: string;
   name: string;
   price: number;
   photo: string;
 }
+
 export interface IClient {
   id: number;
   name: string;
-  photo: string;
 }
+
 export interface IStock {
   id: number;
   product_id: number;

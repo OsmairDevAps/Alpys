@@ -86,11 +86,11 @@ export default function FrmBuy({closeModal}:BuyProps) {
           style={{
             width: '100%',
             color: '#4b2400', 
-            backgroundColor: '#fcf3e6', 
+            backgroundColor: '#fff7ed', 
             borderRadius: 8, 
             height: 50, 
             paddingLeft: 10, 
-            placeHoldelColor: '#e2e2e2', 
+            placeHoldelColor: '#a8a29e', 
             marginTop: 8,
             marginBottom: 8
           }}

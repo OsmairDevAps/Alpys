@@ -9,6 +9,8 @@ import { CardProduct } from "@/src/components/Card/product";
 
 export default function Product() {
   const productDatabase = useProductDatabase()
+  const [product, seProduct] = useState<IProduct>()
+  const [nullProduct, seNullProduct] = useState<IProduct>()
   const [products, seProducts] = useState<IProduct[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -32,7 +34,13 @@ export default function Product() {
     }
   }
 
+  async function handleUpdate(prod: IProduct) {
+    seProduct(prod)
+    setIsModalOpen(true)
+  }
+
   function openModal() {
+    seProduct(nullProduct)
     setIsModalOpen(true)
   }
 
@@ -58,7 +66,11 @@ export default function Product() {
         keyExtractor={item => String(item.id)}
         contentContainerStyle={{ gap: 16 }}
         renderItem={({ item }) => 
-          <CardProduct item={item} onDelete={() => handleDelete(item.id)} />
+          <CardProduct 
+            item={item} 
+            onDelete={() => handleDelete(item.id)} 
+            onUpdate={() => handleUpdate(item)}
+          />
         }
       />
  
@@ -69,7 +81,11 @@ export default function Product() {
         onRequestClose={() => {
            setIsModalOpen(!isModalOpen)
       }}>
-        <FrmProduct closeModal={setIsModalOpen} listProducts={list} />
+        <FrmProduct 
+          closeModal={setIsModalOpen} 
+          product={product} 
+          listProducts={list()} 
+        />
       </Modal>
 
     </View>

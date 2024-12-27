@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Switch, Text, View, KeyboardAvoidingView, Platform, Modal } from "react-native";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
@@ -6,12 +6,16 @@ import { SelectList } from 'react-native-dropdown-select-list';
 import { LClients, LProducts } from "@/src/constants/db";
 import { MaskedTextInput } from "react-native-mask-text";
 import FrmClient from "./client";
+import { useClientDatabase } from "@/src/database/useClientDatabase";
+import { IClient, ISelectProps } from "@/src/constants/interface";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
 }
 
 export default function FrmSale({closeModal}:SaleProps) {
+  const clientDatabase = useClientDatabase()
+  const [selectClients, setSelectClients] = useState<ISelectProps[]>([{ key: '', value: '' }])
   const [productName, setProductName] = useState('')
   const [clientName, setClientName] = useState('')
   const [amount, setAmount] = useState('')
@@ -19,6 +23,20 @@ export default function FrmSale({closeModal}:SaleProps) {
   const [isPaid, setIsPaid] = useState(false)
   const [isModalClientOpen, setIsModalClientOpen] = useState(false)
   
+  async function list() {
+    try {
+      const response = await clientDatabase.list()
+      if(response) {
+        let newArray: ISelectProps[] = response.map(cli => {
+          return { key: String(cli.id), value: String(cli.name) }
+        })
+        setSelectClients(newArray)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   function handleSave() {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
@@ -46,6 +64,10 @@ export default function FrmSale({closeModal}:SaleProps) {
     closeModal(false)
   }
 
+  useEffect(() => {
+    list()
+  },[])
+
   return (
     <KeyboardAvoidingView
       style={{flex: 1}}
@@ -62,7 +84,7 @@ export default function FrmSale({closeModal}:SaleProps) {
             boxStyles={{ flex:1, width: 260, backgroundColor: '#fdf7e5', marginBottom: 8, marginTop: 8 }}
             dropdownStyles={{ backgroundColor: '#eaeaea' }}
             setSelected={(val: string) => setClientName(val)}
-            data={LClients}
+            data={selectClients}
             save="key"
           />
           <Button title="+ Cliente" type="Evently" onPress={openModalClient} />
@@ -133,7 +155,7 @@ export default function FrmSale({closeModal}:SaleProps) {
         onRequestClose={() => {
            setIsModalClientOpen(!isModalClientOpen)
       }}>
-        <FrmClient closeModal={setIsModalClientOpen} />
+        <FrmClient closeModal={setIsModalClientOpen} listSelect={list()} />
       </Modal>
 
     </KeyboardAvoidingView>

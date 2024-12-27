@@ -1,35 +1,77 @@
-import {useState} from 'react'
-import { KeyboardAvoidingView, Platform, Text, View } from "react-native"
+import {useEffect, useState} from 'react'
+import { FlatList, KeyboardAvoidingView, Platform, Text, View } from "react-native"
 import Input from "@/src/components/Input"
 import Button from '@/src/components/Button'
+import { useClientDatabase } from '@/src/database/useClientDatabase'
+import { IClient } from '@/src/constants/interface'
+import { CardClient } from '@/src/components/Card/client'
 
 type Props = {
   closeModal: (value: boolean) => void;
+  listSelect?: Promise<void>
 }
 
-export default function FrmClient({closeModal}: Props) {
+export default function FrmClient({closeModal, listSelect}: Props) {
+  const clientDatabase = useClientDatabase()
+  const [clients, setClients] = useState<IClient[]>([])
   const [nameClient, setNameClient] = useState('')
 
-  function handleSave() {
-    const data = {
-      name: nameClient
+  async function listClients() {
+    try {
+      const response = await clientDatabase.list()
+      if(response) {
+        setClients(response)
+      }
+    } catch (error) {
+      console.log(error)
     }
-    console.log(data)
+  }
+  
+  async function update(cli: IClient) {
+    try {
+      await clientDatabase.update({
+        id: cli.id,
+        name: cli.name
+      })
+      await listClients()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  function handleClose() {
+  async function remove(id: number) {
+    try {
+      await clientDatabase.remove(id)
+      await listClients()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function handleSave() {
+    await clientDatabase.create({
+      name: nameClient
+    })
+    setNameClient('')
+    await listClients()
+  }
+
+  async function handleClose() {
+    await listSelect
     closeModal(false)
   }
 
+  useEffect(() => {
+    listClients()
+  },[])
+
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={{flex: 1, backgroundColor: '#3f2200', marginTop: 100}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className='flex-1 items-center justify-start bg-orange-950 px-4 mt-28'>
-        <View className="flex flex-row justify-between items-center w-full h-10 mb-4">
-          <Text className="text-lg font-bold text-orange-50">CADASTRO DE CLIENTES</Text>
-        </View>
+      <View className='bg-orange-950 px-4 mb-4'>
+        <Text className="text-lg font-bold text-orange-50">CADASTRO DE CLIENTES</Text>
 
         <Input 
           placeholder="Cliente"
@@ -39,8 +81,21 @@ export default function FrmClient({closeModal}: Props) {
         />
         <Button title="Salvar" onPress={handleSave} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
-
-        </View>
-      </KeyboardAvoidingView>
+      </View>
+      
+      <Text className='text-orange-50'>INCLUÍDOS:</Text>
+      <FlatList 
+        data={clients}
+        keyExtractor={(item)=>String(item.id)}
+        contentContainerStyle={{ gap: 16 }}
+        renderItem={({ item }) => 
+          <CardClient 
+            item={item}
+            onDelete={() => remove(item.id)}
+            onUpdate={() => update(item)}
+          />
+        }
+      />
+    </KeyboardAvoidingView>
   )
 }

@@ -26,19 +26,16 @@ export interface IUser {
   password: string;
   photo: string;
 }
-
 export interface IProduct {
   id: number;
   name: string;
   price: number;
   photo: string;
 }
-
 export interface IClient {
   id: number;
   name: string;
 }
-
 export interface IStock {
   id: number;
   product_id: number;
@@ -81,7 +78,6 @@ export interface ITransaction {
   price: number;
   datetransaction: string;
   ispaid: boolean;
-  stock_id: number;
 }
 export interface ITBuy {
   id: number;

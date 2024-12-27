@@ -11,7 +11,7 @@ export function useProductDatabase() {
     try {
       const result = await statemant.executeAsync({
         $name: data.name,
-        $price: data.price,
+        $price: data.price, 
         $photo: data.photo
       })
       const insertedRow = result.lastInsertRowId.toLocaleString()
@@ -25,7 +25,7 @@ export function useProductDatabase() {
 
   async function update(data: IProduct) {
     const statemant = await database.prepareAsync(
-      "UPDATE products SET name=$name, price=$price, photo=$photo) WHERE(id=$id)"
+      "UPDATE products SET name=$name, price=$price, photo=$photo WHERE(id=$id)"
       )
     try {
       await statemant.executeAsync({

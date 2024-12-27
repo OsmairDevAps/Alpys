@@ -46,9 +46,9 @@ export default function FrmBuy({closeModal}:BuyProps) {
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className='flex flex-1 items-center justify-start bg-orange-950 px-4 mt-28'>
+      <View className='flex flex-1 items-center justify-start bg-orange-50 px-4 mt-28'>
         <View className="flex flex-row justify-between items-center w-full h-10 mb-4">
-          <Text className="text-lg font-bold text-orange-50">CADASTRO DE COMPRAS</Text>
+          <Text className="text-lg font-bold text-orange-950">CADASTRO DE COMPRAS</Text>
         </View>
 
         <Input 
@@ -81,30 +81,11 @@ export default function FrmBuy({closeModal}:BuyProps) {
           value={amount}
         />
 
-        <MaskedTextInput
-          type='currency'
-          style={{
-            width: '100%',
-            color: '#4b2400', 
-            backgroundColor: '#fff7ed', 
-            borderRadius: 8, 
-            height: 50, 
-            paddingLeft: 10, 
-            placeHoldelColor: '#a8a29e', 
-            marginTop: 8,
-            marginBottom: 8
-          }}
-          options={{
-            prefix: '',
-            precision: 2,
-            decimalSeparator: '.',
-            groupSeparator: ',',
-          }}
-          placeholder='0.00'
-          keyboardType='numeric'
-          onChangeText={(price, rawText) => {
-            setPrice(price)
-          }}
+        <Input 
+          placeholder="Quantidade"
+          keyboardType="numeric"
+          onChangeText={setPrice}
+          value={price}
         />
 
         <Button title="Salvar" onPress={handleSave} />

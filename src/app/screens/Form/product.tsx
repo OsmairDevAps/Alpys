@@ -1,16 +1,17 @@
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Text, View, KeyboardAvoidingView, Platform } from "react-native";
 import { useProductDatabase } from "@/src/database/useProductDatabase";
-import { MaskedTextInput } from "react-native-mask-text";
+import { IProduct } from "@/src/constants/interface";
 
 type Props = {
   closeModal: (value: boolean) => void;
-  listProducts?: Function;
+  listProducts?: Promise<void>;
+  product?: IProduct;
 }
 
-export default function FrmProduct({closeModal, listProducts}:Props) {
+export default function FrmProduct({ closeModal, listProducts, product }:Props) {
   const productDatabase = useProductDatabase()
   const [id, setId] = useState('')
   const [name, setName] = useState('')
@@ -19,35 +20,39 @@ export default function FrmProduct({closeModal, listProducts}:Props) {
 
   async function handleSave() {
     try {
-      await productDatabase.create({name, price: Number(price), photo})
+      if (id) {
+        await productDatabase.update({
+          id: Number(id), 
+          name, 
+          price: Number(price), 
+          photo
+        })
+      } else {
+        await productDatabase.create({name, price: Number(price), photo})
+      }
       setId('')
       setName('')
-      setPrice('')
+      setPrice('0.00')
       setPhoto('sem foto')
-      listProducts
+      await listProducts
       closeModal(false)
     } catch (error) {
       console.log(error)      
     }
   }
 
-  async function handleUpdate() {
-    try {
-      await productDatabase.update({
-        id: Number(id), 
-        name, 
-        price: Number(price), 
-        photo
-      })
-    } catch (error) {
-      console.log(error)      
-    }
-  }
-
-
   function handleClose() {
     closeModal(false)
   }
+
+  useEffect(() => {
+    if(product) {
+      setId(String(product.id))
+      setName(product.name)
+      setPrice(String(product.price.toFixed(2)))
+      setPhoto(product.photo)
+    }
+  }, [])
 
   return (
     <KeyboardAvoidingView
@@ -65,30 +70,12 @@ export default function FrmProduct({closeModal, listProducts}:Props) {
           onChangeText={setName}
           value={name}
         />
-        
-        <MaskedTextInput
-          type='currency'
-          style={{
-            width: '100%',
-            color: '#4b2400', 
-            backgroundColor: '#fcf3e6', 
-            borderRadius: 8, 
-            height: 50, 
-            paddingLeft: 10, 
-            placeHoldelColor: '#e2e2e2', 
-            marginTop: 8
-          }}
-          options={{
-            prefix: '',
-            precision: 2,
-            decimalSeparator: '.',
-            groupSeparator: ',',
-          }}
-          placeholder='Preço'
-          keyboardType='numeric'
-          onChangeText={(price, rawText) => {
-            setPrice(price)
-          }}
+
+        <Input 
+          placeholder="Preço"
+          keyboardType="numeric"
+          onChangeText={setPrice}
+          value={price}
         />
 
         <Input 

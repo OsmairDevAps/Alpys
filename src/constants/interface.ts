@@ -96,7 +96,6 @@ export interface ITSale {
   price: number;
   datetransaction: string;
   ispaid: boolean;
-  stock_id: number;
 }
 export type TList = {
   modalidy: string

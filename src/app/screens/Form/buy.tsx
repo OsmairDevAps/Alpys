@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Text, View, KeyboardAvoidingView, Platform } from "react-native";
 import { LKind } from "@/src/constants/db";
 import { SelectList } from "react-native-dropdown-select-list";
-import { MaskedTextInput } from "react-native-mask-text";
 
 type BuyProps = {
   closeModal: (value: boolean) => void;
@@ -60,8 +59,9 @@ export default function FrmBuy({closeModal}:BuyProps) {
 
         <SelectList
           placeholder='Tipo de Produto'
-          boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', marginBottom: 8, marginTop: 8 }}
-          dropdownStyles={{ backgroundColor: '#eaeaea' }}
+          inputStyles={{ color: '#431407'}}
+          boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
+          dropdownStyles={{ backgroundColor: '#fdf7e5' }}
           setSelected={(val: string) => setKind(val)}
           data={LKind}
           save="key"

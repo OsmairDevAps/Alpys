@@ -67,11 +67,11 @@ export default function FrmClient({closeModal, listSelect}: Props) {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1, backgroundColor: '#3f2200', marginTop: 100}}
+      style={{flex: 1, backgroundColor: '#fff7ed', marginTop: 100}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className='bg-orange-950 px-4 mb-4'>
-        <Text className="text-lg font-bold text-orange-50">CADASTRO DE CLIENTES</Text>
+      <View className='bg-orange-50 px-4 mb-4'>
+        <Text className="text-lg font-bold text-orange-950">CADASTRO DE CLIENTES</Text>
 
         <Input 
           placeholder="Cliente"
@@ -83,11 +83,11 @@ export default function FrmClient({closeModal, listSelect}: Props) {
         <Button title="Fechar" type="Close" onPress={handleClose} />
       </View>
       
-      <Text className='text-orange-50'>INCLUÍDOS:</Text>
+      <Text className='text-orange-950 font-bold px-4'>INCLUÍDOS:</Text>
       <FlatList 
         data={clients}
         keyExtractor={(item)=>String(item.id)}
-        contentContainerStyle={{ gap: 16 }}
+        contentContainerStyle={{ gap: 8 }}
         renderItem={({ item }) => 
           <CardClient 
             item={item}

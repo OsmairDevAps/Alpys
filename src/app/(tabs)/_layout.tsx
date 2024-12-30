@@ -11,8 +11,6 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
 
-  
-
   return (
     <Tabs
       screenOptions={{
@@ -24,6 +22,10 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#F97316',
           borderColor: '#F97316'
+        },
+        headerTintColor: '#ffffff',
+        headerStyle: {
+          backgroundColor: '#F97316'
         }
       }}>
       <Tabs.Screen

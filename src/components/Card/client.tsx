@@ -10,11 +10,10 @@ type Props = TouchableOpacityProps & {
 
 export function CardClient({item, onDelete, onUpdate, ...rest}: Props) {
   return (
-    <View className="flex flex-row justify-between items-center">
+    <View className="flex flex-row justify-between items-center px-4">
       
       <TouchableOpacity className="w-80 border-dotted border-orange-50 border-[1px]" {...rest}>
           <View className="flex flex-row gap-2">
-            <Text className="text-lg font-bold">Cliente:</Text>
             <Text className="text-lg">{item.name}</Text>
           </View>
       </TouchableOpacity>

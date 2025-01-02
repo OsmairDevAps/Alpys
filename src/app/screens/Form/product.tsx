@@ -1,7 +1,7 @@
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { useState, useEffect } from "react";
-import { Text, View, KeyboardAvoidingView, Platform } from "react-native";
+import { Text, View, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import { useProductDatabase } from "@/src/database/useProductDatabase";
 import { IProduct } from "@/src/constants/interface";
 
@@ -27,8 +27,10 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           price: Number(price), 
           photo
         })
+        Alert.alert('Produto atualizado com sucesso!')
       } else {
         await productDatabase.create({name, price: Number(price), photo})
+        Alert.alert('Produto incluído com sucesso!')
       }
       setId('')
       setName('')

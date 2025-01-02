@@ -1,15 +1,21 @@
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
-import { useState } from "react";
-import { Text, View, KeyboardAvoidingView, Platform } from "react-native";
+import { useState, useEffect } from "react";
+import { Text, View, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import { LKind } from "@/src/constants/db";
 import { SelectList } from "react-native-dropdown-select-list";
+import { useBuyDatabase } from "@/src/database/useBuyDatabase";
+import { ITBuy } from "@/src/constants/interface";
 
 type BuyProps = {
   closeModal: (value: boolean) => void;
+  listBuy?: Promise<void>;
+  buy?: ITBuy;
 }
 
-export default function FrmBuy({closeModal}:BuyProps) {
+export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
+  const buyDatabase = useBuyDatabase()
+  const [id, setId] = useState('')
   const [place, setPlace] = useState('')
   const [kind, setKind] = useState('')
   const [productName, setProductName] = useState('')
@@ -17,28 +23,63 @@ export default function FrmBuy({closeModal}:BuyProps) {
   const [price, setPrice] = useState('')
   const [isPaid, setIsPaid] = useState(false)
 
-  function handleSave() {
+  async function handleSave() {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const year = today.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
-    const data = {
-      modality: 'buy',
-      place: place,
-      kind: kind,
-      productName: productName,
-      amount: amount,
-      price: price,
-      dateTransaction: formattedDate,
-      isPaid: isPaid
+    try {
+      if(id) {
+        await buyDatabase.update({
+          id: Number(id),
+          modality: 'buy',
+          place: place, 
+          kind: kind, 
+          product_name: productName, 
+          amount: Number(amount), 
+          price: Number(price), 
+          datetransaction: formattedDate  
+        })
+        Alert.alert('Compra atualizada com sucesso!')
+      }else {
+        await buyDatabase.create({
+          modality: 'buy',
+          place: place, 
+          kind: kind, 
+          product_name: productName, 
+          amount: Number(amount), 
+          price: Number(price), 
+          datetransaction: formattedDate  
+        })
+        Alert.alert('Compra incluída com sucesso!')
+      }
+      setPlace('')
+      setKind('')
+      setProductName('')
+      setAmount('')
+      setPrice('')
+      await listBuy
+      closeModal(false)
+    } catch (error) {
+      console.log(error)
     }
-    console.log(data)
   }
 
   function handleClose() {
     closeModal(false)
   }
+
+  useEffect(() => {
+    if(buy) {
+      setId(String(buy.id))
+      setPlace(buy.place)
+      setKind(buy.kind)
+      setProductName(buy.product_name)
+      setAmount(String(buy.amount))
+      setPrice(String(buy.price))
+    }
+  },[])
 
   return (
     <KeyboardAvoidingView
@@ -82,7 +123,7 @@ export default function FrmBuy({closeModal}:BuyProps) {
         />
 
         <Input 
-          placeholder="Quantidade"
+          placeholder="Valor"
           keyboardType="numeric"
           onChangeText={setPrice}
           value={price}

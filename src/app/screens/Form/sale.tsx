@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Switch, Text, View, KeyboardAvoidingView, Platform, Modal } from "react-native";
+import { Switch, Text, View, KeyboardAvoidingView, Platform, Modal, Alert } from "react-native";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from 'react-native-dropdown-select-list';
@@ -7,15 +7,20 @@ import { LClients, LProducts } from "@/src/constants/db";
 import { MaskedTextInput } from "react-native-mask-text";
 import FrmClient from "./client";
 import { useClientDatabase } from "@/src/database/useClientDatabase";
-import { IClient, ISelectProps } from "@/src/constants/interface";
+import { IClient, ISelectProps, ITSale } from "@/src/constants/interface";
+import { useSaleDatabase } from "@/src/database/useSaleDatabase";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
+  listSales?: Promise<void>;
+  sale?: ITSale;
 }
 
-export default function FrmSale({closeModal}:SaleProps) {
+export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
   const clientDatabase = useClientDatabase()
+  const saleDatabase = useSaleDatabase()
   const [selectClients, setSelectClients] = useState<ISelectProps[]>([{ key: '', value: '' }])
+  const [id, setId] = useState('')
   const [productName, setProductName] = useState('')
   const [clientName, setClientName] = useState('')
   const [amount, setAmount] = useState('')
@@ -23,7 +28,7 @@ export default function FrmSale({closeModal}:SaleProps) {
   const [isPaid, setIsPaid] = useState(false)
   const [isModalClientOpen, setIsModalClientOpen] = useState(false)
   
-  async function list() {
+  async function listClients() {
     try {
       const response = await clientDatabase.list()
       if(response) {
@@ -37,23 +42,50 @@ export default function FrmSale({closeModal}:SaleProps) {
     }
   }
 
-  function handleSave() {
+  async function handleSave() {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const year = today.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
-
+    try {
+      if (id) {
+        saleDatabase.update({
+          id: Number(id),
+          modality: 'sale',
+          client_name: clientName,
+          product_name: productName,
+          amount: Number(amount),
+          price: Number(price),
+          datetransaction: formattedDate,
+          ispaid: isPaid
+        })
+        Alert.alert('Venda atualizada com sucesso!')
+      } else {
+        saleDatabase.create({
+          modality: 'sale',
+          client_name: clientName,
+          product_name: productName,
+          amount: Number(amount),
+          price: Number(price),
+          datetransaction: formattedDate,
+          ispaid: isPaid
+        })
+        Alert.alert('Venda incluída com sucesso!')
+      }
+      setId('')
+      setProductName('')
+      setClientName('')
+      setAmount('')
+      setPrice('')
+      setIsPaid(false)
+      } catch (error) {
+      console.log(error)
+    }
     const data = {
-      modality: 'sale',
-      clientName: clientName,
-      productName: productName,
-      amount: amount,
-      price: price,
-      dateTransaction: formattedDate,
-      isPaid: isPaid
     }
     console.log(data)
+    await listSales
   }
   
   function openModalClient() {
@@ -65,7 +97,15 @@ export default function FrmSale({closeModal}:SaleProps) {
   }
 
   useEffect(() => {
-    list()
+    listClients()
+    if(sale) {
+      setId(String(sale.id))
+      setProductName(sale.product_name)
+      setClientName(sale.client_name)
+      setAmount(String(sale.amount))
+      setPrice(String(sale.price))
+      setIsPaid(sale.ispaid)
+    }
   },[])
 
   return (
@@ -159,7 +199,10 @@ export default function FrmSale({closeModal}:SaleProps) {
         onRequestClose={() => {
            setIsModalClientOpen(!isModalClientOpen)
       }}>
-        <FrmClient closeModal={setIsModalClientOpen} listSelect={list()} />
+        <FrmClient 
+          closeModal={setIsModalClientOpen} 
+          listSelect={listClients()} 
+        />
       </Modal>
 
     </KeyboardAvoidingView>

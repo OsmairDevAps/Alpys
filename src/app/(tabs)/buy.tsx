@@ -1,16 +1,51 @@
+import { useEffect, useState } from 'react';
+import { Text, View, FlatList, TouchableOpacity, Modal, Alert } from "react-native";
 import { Feather } from '@expo/vector-icons'
-import { Text, View, FlatList, TouchableOpacity, Modal } from "react-native";
-import { useState } from 'react';
-import { dataBuy } from '@/src/constants/db';
-import FrmBuy from '../screens/Form/buy';
 import Header from '@/src/components/Header';
+import FrmBuy from '../screens/Form/buy';
+import { ITBuy } from '@/src/constants/interface';
+import { useBuyDatabase } from '@/src/database/useBuyDatabase';
+import { CardBuy } from '@/src/components/Card/buy';
 
 export default function Buy() {
+  const buyDatabase = useBuyDatabase()
+  const [nullBuy, setNullBuy] = useState<ITBuy>()
+  const [buy, setBuy] = useState<ITBuy>()
+  const [buys, setBuys] = useState<ITBuy[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   
-  function openModal() {
+  async function listBuys() {
+    try {
+      const response = await buyDatabase.list()
+      setBuys(response)
+    } catch (error) {
+      console.log('Erro ao listar: ', error)
+    }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      await buyDatabase.remove(id)
+      Alert.alert('Compra excluída com sucesso!')
+      listBuys()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function handleUpdate(buy: ITBuy) {
+    setBuy(buy)
     setIsModalOpen(true)
   }
+
+  function openModal() {
+    setBuy(nullBuy)
+    setIsModalOpen(true)
+  }
+
+  useEffect(() => {
+    listBuys()
+  }, [])
 
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
@@ -26,40 +61,15 @@ export default function Buy() {
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
-        data={dataBuy}
+        data={buys}
+        contentContainerStyle={{ gap: 16 }}
         keyExtractor={item => String(item.id)}
         renderItem={({ item }) => 
-          <View className="mb-4">
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Local da compra:</Text>
-              <Text className="text-lg">{item.place}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Tipo de produto:</Text>
-              <Text className="text-lg">{item.kind}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Produto:</Text>
-              <Text className="text-lg">{item.product_name}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Quantidade:</Text>
-              <Text className="text-lg">{item.amount}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Preço:</Text>
-              <Text className="text-lg">
-                {Intl.NumberFormat(
-                  'pt-BR', 
-                  {style: 'currency', currency: 'BRL'}
-                  ).format(item.price)}
-              </Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Data:</Text>
-              <Text className="text-lg">{item.datetransaction}</Text>
-            </View>
-          </View>
+          <CardBuy 
+            item={item}
+            onUpdate={() => handleUpdate(item)}
+            onDelete={() => handleDelete(item.id)}
+          />
         }
       />
 
@@ -70,7 +80,11 @@ export default function Buy() {
         onRequestClose={() => {
           setIsModalOpen(!isModalOpen)
       }}>
-        <FrmBuy closeModal={setIsModalOpen} />
+        <FrmBuy 
+          closeModal={setIsModalOpen} 
+          listBuy={listBuys()} 
+          buy={buy}
+        />
       </Modal>
     </View>
   )

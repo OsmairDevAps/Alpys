@@ -1,6 +1,11 @@
 import { type SQLiteDatabase } from 'expo-sqlite';
 
 export async function initializeDatabase(database: SQLiteDatabase) {
+  // await database.execAsync(`DROP TABLE IF EXISTS clients`)
+  // await database.execAsync(`DROP TABLE IF EXISTS products`)
+  // await database.execAsync(`DROP TABLE IF EXISTS transactions`)
+  // await database.execAsync(`DROP TABLE IF EXISTS orders`)
+
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -14,20 +19,19 @@ export async function initializeDatabase(database: SQLiteDatabase) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL
     )`)
-
+    
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS transactions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      modality TEXT
-      kind TEXT
-      place TEXT
-      product_name TEXT
-      client_name TEXT
-      amount INTEGER
-      price DOUBLE
-      datetransaction TEXT
+      modality TEXT,
+      kind TEXT,
+      place TEXT,
+      product_name TEXT,
+      client_name TEXT,
+      amount INTEGER,
+      price DOUBLE,
+      datetransaction TEXT,
       ispaid BOOLEAN
-      name TEXT NOT NULL
     )`)
 
   await database.execAsync(`
@@ -42,5 +46,4 @@ export async function initializeDatabase(database: SQLiteDatabase) {
       address TEXT,
       obs TEXT
     )`)
-
 }

@@ -1,16 +1,51 @@
-import { useState } from "react";
-import { Text, View, Modal, FlatList, TouchableOpacity } from "react-native";
+import { useState, useEffect } from "react";
+import { Text, View, Modal, FlatList, TouchableOpacity, Alert } from "react-native";
 import Header from "@/src/components/Header";
-import { dataSale } from "@/src/constants/db";
 import { Feather } from "@expo/vector-icons";
 import FrmSale from "../screens/Form/sale";
+import { CardSale } from "@/src/components/Card/sale";
+import { ITSale } from "@/src/constants/interface";
+import { useSaleDatabase } from "@/src/database/useSaleDatabase";
 
 export default function Sales() {
+  const saleDatabase = useSaleDatabase()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [sales, setSales] = useState<ITSale[]>([])
+  const [nullSale, setNullSale] = useState<ITSale>()
+  const [sale, setSale] = useState<ITSale>()
   
-  function openModal() {
+  async function listSales() {
+    try {
+      const response = await saleDatabase.list()
+      setSales(response)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      await saleDatabase.remove(id)
+      Alert.alert('Venda excluída com sucesso!')
+      listSales()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function handleUpdate(sale: ITSale) {
+    setSale(sale)
     setIsModalOpen(true)
   }
+
+  function openModal() {
+    setSale(nullSale)
+    setIsModalOpen(true)
+  }
+
+  useEffect(() => {
+    listSales()
+  },[])
 
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
@@ -26,40 +61,15 @@ export default function Sales() {
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
-        data={dataSale}
+        data={sales}
         keyExtractor={item => String(item.id)}
+        contentContainerStyle={{ gap: 16 }}
         renderItem={({ item }) => 
-          <View className="mb-4">
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Cliente:</Text>
-              <Text className="text-lg">{item.client_name}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Produto:</Text>
-              <Text className="text-lg">{item.product_name}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Quantidade:</Text>
-              <Text className="text-lg">{item.amount}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Preço:</Text>
-              <Text className="text-lg">
-                {Intl.NumberFormat(
-                  'pt-BR', 
-                  {style: 'currency', currency: 'BRL'}
-                  ).format(item.price)}
-              </Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Data:</Text>
-              <Text className="text-lg">{item.datetransaction}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Pago?</Text>
-              <Text className="text-lg">{item.ispaid ? 'Sim' : 'Não'}</Text>
-            </View>
-          </View>
+          <CardSale 
+            item={item}
+            onUpdate={() => handleUpdate(item)}
+            onDelete={() => handleDelete(item.id)}
+          />
         }
       />
  
@@ -70,7 +80,11 @@ export default function Sales() {
         onRequestClose={() => {
            setIsModalOpen(!isModalOpen)
       }}>
-        <FrmSale closeModal={setIsModalOpen} />
+        <FrmSale 
+          closeModal={setIsModalOpen} 
+          listSales={listSales()} 
+          sale={sale} 
+        />
       </Modal>
 
     </View>

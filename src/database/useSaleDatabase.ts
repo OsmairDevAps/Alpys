@@ -6,12 +6,13 @@ export function useSaleDatabase() {
 
   async function create(data: Omit<ITSale, 'id'>) {
     const statemant = await database.prepareAsync(
-      "INSERT INTO transactions(product_name, client_name, amount, price, datetransaction, ispaid) VALUES($product_name, $client_name, $amount, $price, $datetransaction, $ispaid)"
+      "INSERT INTO transactions(product_name, client_name, modality, amount, price, datetransaction, ispaid) VALUES($product_name, $client_name, $modality, $amount, $price, $datetransaction, $ispaid)"
     )
     try {
       const result = await statemant.executeAsync({
         $product_name: data.product_name, 
         $client_name: data.client_name, 
+        $modality: data.modality,
         $amount: data.amount, 
         $price: data.price, 
         $datetransaction: data.datetransaction, 
@@ -59,7 +60,7 @@ export function useSaleDatabase() {
   
   async function list() {
     try {
-      const query = "SELECT * FROM transactions ORDER BY name"
+      const query = "SELECT * FROM transactions WHERE modality='sale' ORDER BY datetransaction"
       const response = await database.getAllAsync<ITSale>(query)
       return response
     } catch (error) {
@@ -79,7 +80,7 @@ export function useSaleDatabase() {
   
   async function searchByPeriod(dtini: string, dtfin: string) {
     try {
-      const query = `SELECT * FROM transactions WHERE datetransaction between ${dtini} and ${dtfin}`
+      const query = `SELECT * FROM transactions WHERE modality='sale' AND datetransaction between ${dtini} and ${dtfin}`
       const response = await database.getAllAsync<ITSale>(query)
       return response
     } catch (error) {

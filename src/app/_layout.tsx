@@ -55,7 +55,7 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <SQLiteProvider databaseName='alpysDb.db' onInit={initializeDatabase}>
+      <SQLiteProvider databaseName='alpys.db' onInit={initializeDatabase}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>

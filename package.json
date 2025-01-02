@@ -37,7 +37,7 @@
     "react-native-web": "~0.19.13",
     "tailwindcss": "^3.4.16",
     "@react-native-community/netinfo": "11.4.1",
-    "expo-sqlite": "~15.0.4"
+    "expo-sqlite": "~15.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

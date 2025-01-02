@@ -6,10 +6,11 @@ export function useBuyDatabase() {
 
   async function create(data: Omit<ITBuy, 'id'>) {
     const statemant = await database.prepareAsync(
-      "INSERT INTO transactions(place, kind, product_name, amount, price, datetransaction) VALUES($place, $kind, $product_name, $amount, $price, $datetransaction)"
+      "INSERT INTO transactions(modality, place, kind, product_name, amount, price, datetransaction) VALUES($modality, $place, $kind, $product_name, $amount, $price, $datetransaction)"
     )
     try {
       const result = await statemant.executeAsync({
+        $modality: data.modality,
         $place: data.place, 
         $kind: data.kind, 
         $product_name: data.product_name, 
@@ -59,7 +60,8 @@ export function useBuyDatabase() {
   
   async function list() {
     try {
-      const query = "SELECT * FROM transactions ORDER BY name"
+      // const query = "PRAGMA table_info(transactions)"
+      const query = "SELECT * FROM transactions WHERE modality='buy'"
       const response = await database.getAllAsync<ITBuy>(query)
       return response
     } catch (error) {
@@ -79,7 +81,7 @@ export function useBuyDatabase() {
   
   async function searchByPeriod(dtini: string, dtfin: string) {
     try {
-      const query = `SELECT * FROM transactions WHERE datetransaction between ${dtini} and ${dtfin}`
+      const query = `SELECT * FROM transactions WHERE modality='buy' AND datetransaction between ${dtini} and ${dtfin}`
       const response = await database.getAllAsync<ITBuy>(query)
       return response
     } catch (error) {

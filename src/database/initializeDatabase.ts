@@ -34,7 +34,7 @@ export async function initializeDatabase(database: SQLiteDatabase) {
       ispaid BOOLEAN
     )`)
 
-  await database.execAsync(`
+    await database.execAsync(`
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       client_name TEXT,

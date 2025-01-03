@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Text, View, Switch, KeyboardAvoidingView, Platform, Keyboard, Modal } from "react-native";
+import { Text, View, Switch, KeyboardAvoidingView, Platform, Keyboard, Modal, TouchableOpacity } from "react-native";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
-import { LClients, LProducts } from "@/src/constants/db";
 import { SelectList } from "react-native-dropdown-select-list";
 import { MaskedTextInput } from 'react-native-mask-text'
-import { ISelectProps } from "@/src/constants/interface";
+import { IOrder, ISelectProps } from "@/src/constants/interface";
 import { useOrderDatabase } from "@/src/database/useOrderDatabase";
 import { useClientDatabase } from "@/src/database/useClientDatabase";
 import { useProductDatabase } from "@/src/database/useProductDatabase";
@@ -14,16 +13,26 @@ import FrmClient from "./client";
 type OrderProps = {
   closeModal: (value: boolean) => void;
   listOrder: Promise<void>;
+  order?: IOrder;
 }
 
-export default function FrmOrder({closeModal, listOrder}:OrderProps) {
+type SelectProductProps = {
+  key: string;
+  value: string;
+  price: number;
+}
+
+export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
   const [selectClients, setSelectClients] = useState<ISelectProps[]>([{ key: '', value: '' }])
-  const [selectProducts, setSelectProducts] = useState<ISelectProps[]>([{ key: '', value: '' }])
+  const [selectProducts, setSelectProducts] = useState<SelectProductProps[]>([{ key: '', value: '', price: 0 }])
   const [isModalClientOpen, setIsModalClientOpen] = useState(false)
+  const [id, setId] = useState(0)
   const [clientName, setClientName] = useState('')
+  const [productId, setProductId] = useState('')
   const [productName, setProductName] = useState('')
   const [amount, setAmount] = useState('')
-  const [price, setPrice] = useState('')
+  const [productPrice, setProductPrice] = useState(0)
+  const [price, setPrice] = useState(0)
   const [isDelivery, setIsDelivery] = useState(false)
   const [deliveryFee, setDeliveryFee] = useState('')
   const [address, setAddress] = useState('')
@@ -51,8 +60,8 @@ export default function FrmOrder({closeModal, listOrder}:OrderProps) {
     try {
       const response = await productDatabase.list()
       if(response) {
-        let newArray: ISelectProps[] = response.map(pro => {
-          return { key: String(pro.id), value: String(pro.name) }
+        let newArray: SelectProductProps[] = response.map(pro => {
+          return { key: String(pro.id), value: String(pro.name), price: pro.price }
         })
         setSelectProducts(newArray)
       }
@@ -67,14 +76,14 @@ export default function FrmOrder({closeModal, listOrder}:OrderProps) {
         client_name: clientName, 
         product_name: productName, 
         amount: Number(amount), 
-        price: Number(price), 
+        price: price, 
         isdelivery: isDelivery, 
         deliveryfee: Number(deliveryFee), 
         address: address, 
         obs: obs  
       })
       setAmount('')
-      setPrice('')
+      setPrice(0)
       setIsDelivery(false)
       setDeliveryFee('')
       setAddress('')
@@ -84,6 +93,25 @@ export default function FrmOrder({closeModal, listOrder}:OrderProps) {
       closeModal(false)
     } catch (error) {
       console.log(error)      
+    }
+  }
+
+  function SetValuePrice() {
+    if (Number(productId) > 0 ) {
+      const prod = selectProducts.find(sp => sp.key === productId)
+      let value
+      let total=0
+      if (prod) {
+        value = prod.price
+        setProductName(prod.value)
+      }
+      if (Number(amount) > 0) {
+        total = total + (Number(amount) * Number(value))
+      }
+      if (Number(deliveryFee) > 0) {
+        total = total + Number(deliveryFee)
+      }
+      setPrice(total)
     }
   }
 
@@ -98,6 +126,15 @@ export default function FrmOrder({closeModal, listOrder}:OrderProps) {
   useEffect(() => {
     listClients()
     listProducts()
+    if(order) {
+      setId(order.id)
+      setAmount(String(order.amount))
+      setPrice(order.price)
+      setIsDelivery(order.isdelivery)
+      setDeliveryFee(String(order.deliveryfee))
+      setAddress(order.address)
+      setObs(order.obs)
+    }
   },[])
 
   return (
@@ -110,59 +147,30 @@ export default function FrmOrder({closeModal, listOrder}:OrderProps) {
           <Text className="text-lg font-bold text-orange-950">CADASTRO DE ENCOMENDAS</Text>
         </View>
 
-        <View className="flex-row justify-between w-full gap-4">
-          <SelectList
-            placeholder='Nome do Cliente'
-            inputStyles={{ color: '#431407'}}
-            boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
-            dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-            setSelected={(val: string) => setClientName(val)}
-            data={selectClients}
-            save="key"
-          />
-          <Button title="+ Cliente" type="Evently" onPress={openModalClient} />
-        </View>
+        <Input 
+          placeholder="Cliente"
+          keyboardType="default"
+          onChangeText={setClientName}
+          value={clientName}
+        />
+        
         <SelectList
-          placeholder='Tipo de Produto'
+          placeholder='Produto'
           inputStyles={{ color: '#431407'}}
           boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
           dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-          setSelected={(val: string) => setProductName(val)}
+          setSelected={(val: string) => setProductId(val)}
           data={selectProducts}
           save="key"
         />
+        
         <Input 
           placeholder="Quantidade"
           keyboardType="numeric"
           onChangeText={setAmount}
           value={amount}
         />
-        <MaskedTextInput
-          type='currency'
-          style={{
-            width: '100%',
-            color: '#4b2400', 
-            backgroundColor: '#fff7ed',
-            borderWidth: 1,
-            borderColor: '#f97316',
-            borderRadius: 8, 
-            height: 50, 
-            paddingLeft: 10, 
-            placeHoldelColor: '#a8a29e', 
-            marginTop: 8
-          }}
-          options={{
-            prefix: '',
-            precision: 2,
-            decimalSeparator: '.',
-            groupSeparator: ',',
-          }}
-          placeholder='Preço'
-          keyboardType='numeric'
-          onChangeText={(price, rawText) => {
-            setPrice(price)
-          }}
-        />
+
         <View className="flex flex-row w-full gap-4 justify-normal items-center h-16">
           <Text className="text-orange-950">Para entrega?</Text>
           <Switch
@@ -174,44 +182,36 @@ export default function FrmOrder({closeModal, listOrder}:OrderProps) {
           />
           <Text className="text-orange-950">{isDelivery ? 'Sim' : 'Não'}</Text>
         </View>
-        <MaskedTextInput
-          type='currency'
-          style={{
-            width: '100%',
-            color: '#4b2400', 
-            backgroundColor: '#fff7ed', 
-            borderWidth: 1,
-            borderColor: '#f97316',
-            borderRadius: 8, 
-            height: 50, 
-            paddingLeft: 10, 
-            placeHoldelColor: '#a8a29e', 
-            marginBottom: 8
-          }}
-          options={{
-            prefix: '',
-            precision: 2,
-            decimalSeparator: '.',
-            groupSeparator: ',',
-          }}
-          placeholder='Taxa de entrega'
-          keyboardType='numeric'
-          onChangeText={(deliveryFee, rawText) => {
-            setDeliveryFee(deliveryFee)
-          }}
+
+        <Input 
+          placeholder="Taxa de entrega"
+          keyboardType="numeric"
+          onChangeText={setDeliveryFee}
+          value={deliveryFee}
         />
+
         <Input 
           placeholder="Endereço"
           keyboardType="default"
           onChangeText={setAddress}
           value={address}
         />
+
         <Input 
           placeholder="Observação"
           keyboardType="default"
           onChangeText={setObs}
           value={obs}
         />
+
+        <View className="flex flex-row justify-start items-center w-full h-12 gap-2">
+          <Text>Valor total:</Text>
+          <Text>{price}</Text>
+          <TouchableOpacity className="ml-10 px-4 py-1 border-[1px] border-orange-200 rounded-lg bg-orange-100" onPress={SetValuePrice}>
+            <Text>Atualizar Valor</Text>
+          </TouchableOpacity>
+        </View>
+
         <Text className="text-orange-100">
           VALOR TOTAL: {Intl
             .NumberFormat('pt-BR', 

@@ -3,13 +3,46 @@ import { Text, View, FlatList, Dimensions, useWindowDimensions } from 'react-nat
 import { LineChart } from 'react-native-chart-kit'
 import Header from '@/src/components/Header';
 import ItemList from '@/src/components/ItemList';
+import { GraphicProps, IDataTransaction } from '@/src/constants/interface'
+import { useTransactionDatabase } from '@/src/database/useTransactionDatabase';
+import { useEffect, useState } from 'react';
 
 export default function Listagem() {
+  const transactionDatabase = useTransactionDatabase()
+  const [dataTransaction, setDataTransaction] = useState<IDataTransaction[]>([])
+  const [graphic, setGraphic] = useState<GraphicProps[]>([])
+  const [labels, setLabels] = useState<string[]>([])
+  const [dataGraphic, setDataGraphic] = useState<number[]>([])
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const restHeight = (windowHeight - 348).toFixed()
   const { height, width } = useWindowDimensions();
   
+  async function listTransactions() {
+    try {
+      const response = await transactionDatabase.list()
+      setDataTransaction(response)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  // labels: ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN"],
+  // { data: [120, 130, 140, 150, 160, 170] }
+  async function listTransactionsGraphic() {
+    try {
+      const response = await transactionDatabase.listGraphic()
+      if(response) {
+        let newArray = response.map(lab => {
+          return [ lab.datetransaction, lab.price ]
+        })
+        console.log(newArray)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const dataChart = {
     labels: ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN"],
     datasets: [
@@ -28,100 +61,13 @@ export default function Listagem() {
     ],
     legend: ["VENDAS"]
   }
-  const dataGraphic = [
-    {
-      month: 1,
-      sell: 520,
-      buy: 200,
-      balance: 320 
-    },
-    {
-      month: 2,
-      sell: 500,
-      buy: 180,
-      balance: 320 
-    },
-    {
-      month: 3,
-      sell: 500,
-      buy: 150,
-      balance: 450 
-    },
-    {
-      month: 4,
-      sell: 600,
-      buy: 200,
-      balance: 400 
-    },
-  ]
-  const dataTransactions = [
-    {
-      id: 1,
-      client: 'Osmair',
-      price: 50,
-      amount: 2,
-      modality: 'sell',
-      datetransaction: '01/12/2024'
-    },
-    {
-      id: 2,
-      client: 'Wanessa',
-      price: 75,
-      amount: 3,
-      modality: 'buy',
-      datetransaction: '01/12/2024'
-    },
-    {
-      id: 3,
-      client: 'Wanessa',
-      price: 75,
-      amount: 3,
-      modality: 'buy',
-      datetransaction: '01/12/2024'
-    },
-    {
-      id: 4,
-      client: 'Wanessa',
-      price: 75,
-      amount: 3,
-      modality: 'buy',
-      datetransaction: '01/12/2024'
-    },
-    {
-      id: 5,
-      client: 'Wanessa',
-      price: 75,
-      amount: 3,
-      modality: 'buy',
-      datetransaction: '01/12/2024'
-    },
-    {
-      id: 6,
-      client: 'Wanessa',
-      price: 75,
-      amount: 3,
-      modality: 'buy',
-      datetransaction: '01/12/2024'
-    },
-    {
-      id: 7,
-      client: 'Wanessa',
-      price: 75,
-      amount: 3,
-      modality: 'buy',
-      datetransaction: '01/12/2024'
-    },
-    {
-      id: 8,
-      client: 'Raphael',
-      price: 75,
-      amount: 3,
-      modality: 'buy',
-      datetransaction: '01/12/2024'
-    },
-  ]
+  
+  useEffect(() => {
+    listTransactions()
+    listTransactionsGraphic()
+  },[])
 
-   return (
+  return (
     <View className='flex flex-1 items-center justify-start bg-orange-950'>
       <Header />
 
@@ -157,10 +103,10 @@ export default function Listagem() {
       </View>
 
       <View className='w-full mt-4 pt-4 pb-2 pl-4 pr-4'>
-        <Text className='text-white my-2'>Listagem:</Text>
+        <Text className='text-white my-2'>Últimos lançamentos:</Text>
         <FlatList 
           className='flex h-[440px]'
-          data={dataTransactions}
+          data={dataTransaction}
           keyExtractor={item => String(item.id)}
           renderItem={ ({item}) => 
             <ItemList item={item} />

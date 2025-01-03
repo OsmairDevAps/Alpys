@@ -2,6 +2,11 @@ export interface ISelectProps {
   key: string;
   value: string;
 }
+export interface GraphicProps {
+  datetransaction: string;
+  price: number;
+}
+
 export interface IProduct {
   id: number;
   name: string;
@@ -54,4 +59,12 @@ export interface ITSale {
   price: number;
   datetransaction: string;
   ispaid: boolean;
+}
+export interface IDataTransaction {
+  id: number;
+  name: string;
+  price: number;
+  amount: number;
+  modality: string;
+  datetransaction: string;
 }

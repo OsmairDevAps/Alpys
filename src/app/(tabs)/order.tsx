@@ -1,14 +1,44 @@
 import { useState } from "react";
 import { Text, View, Modal, TouchableOpacity, FlatList } from "react-native";
-import { dataOrder } from "@/src/constants/db";
 import { Feather } from "@expo/vector-icons";
 import FrmOrder from "../screens/Form/order";
 import Header from "@/src/components/Header";
+import { useOrderDatabase } from "@/src/database/useOrderDatabase";
+import { IOrder } from "@/src/constants/interface";
+import { CardOrder } from "@/src/components/Card/order";
 
 export default function Order() {
+  const orderDatabase = useOrderDatabase()
+  const [order, setOrder] = useState<IOrder>()
+  const [nullOrder, setNullOrder] = useState<IOrder>()
+  const [orders, setOrders] = useState<IOrder[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  async function list() {
+    try {
+      const response = await orderDatabase.list()
+      setOrders(response)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      await orderDatabase.remove(id)
+      list()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function handleUpdate(item: IOrder) {
+    setOrder(item)
+    setIsModalOpen(true)
+  }
+
   function openModal() {
+    setOrder(nullOrder)
     setIsModalOpen(true)
   }
 
@@ -25,49 +55,16 @@ export default function Order() {
       </View>
 
       <FlatList 
-        style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
-        data={dataOrder}
+        style={{width: '100%'}}
+        data={orders}
         keyExtractor={item => String(item.id)}
+        contentContainerStyle={{ gap: 16 }}
         renderItem={({ item }) => 
-          <View className="mb-4">
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Cliente:</Text>
-              <Text className="text-lg">{item.client_name}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Produto:</Text>
-              <Text className="text-lg">{item.product_name}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Quantidade:</Text>
-              <Text className="text-lg">{item.amount}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Preço:</Text>
-              <Text className="text-lg">
-                {Intl.NumberFormat(
-                  'pt-BR', 
-                  {style: 'currency', currency: 'BRL'}
-                  ).format(item.price)}
-              </Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Entrega?</Text>
-              <Text className="text-lg">{item.isdelivery ? 'Sim' : 'Não'}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Taxa de Endereço:</Text>
-              <Text className="text-lg">{item.deliveryfee}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Endereço entrega:</Text>
-              <Text className="text-lg">{item.address}</Text>
-            </View>
-            <View className="flex flex-row gap-2">
-              <Text className="text-lg font-bold">Observação:</Text>
-              <Text className="text-lg">{item.obs}</Text>
-            </View>
-          </View>
+          <CardOrder 
+            item={item}
+            onUpdate={() => handleUpdate(item)}
+            onDelete={() => handleDelete(item.id)}
+          />
         }
       />
       <Modal
@@ -77,7 +74,11 @@ export default function Order() {
         onRequestClose={() => {
           setIsModalOpen(!isModalOpen)
       }}>
-        <FrmOrder closeModal={setIsModalOpen} />
+        <FrmOrder 
+          closeModal={setIsModalOpen} 
+          listOrder={list()}
+          order={order}
+        />
       </Modal>
     </View>
     )

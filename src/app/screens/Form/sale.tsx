@@ -1,30 +1,37 @@
 import { useEffect, useState } from "react";
-import { Switch, Text, View, KeyboardAvoidingView, Platform, Modal, Alert } from "react-native";
+import { Switch, Text, View, KeyboardAvoidingView, Platform, Modal, Alert, TouchableOpacity } from "react-native";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from 'react-native-dropdown-select-list';
-import { LClients, LProducts } from "@/src/constants/db";
-import { MaskedTextInput } from "react-native-mask-text";
 import FrmClient from "./client";
 import { useClientDatabase } from "@/src/database/useClientDatabase";
 import { IClient, ISelectProps, ITSale } from "@/src/constants/interface";
 import { useSaleDatabase } from "@/src/database/useSaleDatabase";
+import { useProductDatabase } from "@/src/database/useProductDatabase";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
   listSales?: Promise<void>;
   sale?: ITSale;
 }
+type SelectProductProps = {
+  key: string;
+  value: string;
+  price: number;
+}
 
 export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
   const clientDatabase = useClientDatabase()
+  const productDatabase = useProductDatabase()
   const saleDatabase = useSaleDatabase()
   const [selectClients, setSelectClients] = useState<ISelectProps[]>([{ key: '', value: '' }])
+  const [selectProducts, setSelectProducts] = useState<SelectProductProps[]>([{ key: '', value: '', price: 0 }])
   const [id, setId] = useState('')
+  const [productId, setProductId] = useState(0)
   const [productName, setProductName] = useState('')
   const [clientName, setClientName] = useState('')
   const [amount, setAmount] = useState('')
-  const [price, setPrice] = useState('')
+  const [price, setPrice] = useState(0)
   const [isPaid, setIsPaid] = useState(false)
   const [isModalClientOpen, setIsModalClientOpen] = useState(false)
   
@@ -42,7 +49,22 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
     }
   }
 
+  async function listProducts() {
+    try {
+      const response = await productDatabase.list()
+      if(response) {
+        let newArray: SelectProductProps[] = response.map(pro => {
+          return { key: String(pro.id), value: String(pro.name), price: pro.price }
+        })
+        setSelectProducts(newArray)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   async function handleSave() {
+    updatePrice()
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
     const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -77,8 +99,9 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
       setProductName('')
       setClientName('')
       setAmount('')
-      setPrice('')
+      setPrice(0)
       setIsPaid(false)
+      closeModal(false)
       } catch (error) {
       console.log(error)
     }
@@ -88,6 +111,22 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
     await listSales
   }
   
+  function updatePrice() {
+    if (productId > 0 ) {
+      const prod = selectProducts.find(sp => Number(sp.key) === Number(productId))
+      let value
+      let total=0
+      if (prod) {
+        value = prod.price
+        setProductName(prod.value)
+      }        
+      if(Number(amount) > 0) {
+        total = total + (Number(value) * Number(amount))
+      }
+      setPrice(total)
+    }
+  }
+
   function openModalClient() {
     setIsModalClientOpen(true)
   }
@@ -98,12 +137,13 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
 
   useEffect(() => {
     listClients()
+    listProducts()
     if(sale) {
       setId(String(sale.id))
       setProductName(sale.product_name)
       setClientName(sale.client_name)
       setAmount(String(sale.amount))
-      setPrice(String(sale.price))
+      setPrice(sale.price)
       setIsPaid(sale.ispaid)
     }
   },[])
@@ -122,11 +162,18 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
           <SelectList
             placeholder='Nome do Cliente'
             inputStyles={{ color: '#431407'}}
-            boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
+            boxStyles={{ 
+              width: '100%', 
+              backgroundColor: '#fdf7e5', 
+              borderColor: '#f97316', 
+              borderWidth: 1, 
+              marginBottom: 8, 
+              marginTop: 8 
+            }}
             dropdownStyles={{ backgroundColor: '#fdf7e5' }}
             setSelected={(val: string) => setClientName(val)}
             data={selectClients}
-            save="key"
+            save="value"
           />
           <Button title="+ Cliente" type="Evently" onPress={openModalClient} />
         </View>
@@ -134,10 +181,17 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
         <SelectList
           placeholder='Produto'
           inputStyles={{ color: '#431407'}}
-          boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
+          boxStyles={{ 
+            width: '100%', 
+            backgroundColor: '#fdf7e5', 
+            borderColor: '#f97316', 
+            borderWidth: 1, 
+            marginBottom: 8, 
+            marginTop: 8 
+          }}
           dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-          setSelected={(val: string) => setProductName(val)}
-          data={LProducts}
+          setSelected={(val: number) => setProductId(val)}
+          data={selectProducts}
           save="key"
         />
  
@@ -147,36 +201,19 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
           onChangeText={setAmount}
           value={amount}
         />
+ 
+        <View className="flex flex-row justify-start items-center w-full h-12 gap-2">
+          <Text>Valor total:</Text>
+          <Text>{price}</Text>
+          <TouchableOpacity 
+            className="ml-10 px-4 py-1 border-[1px] border-orange-200 rounded-lg bg-orange-100" 
+            onPress={updatePrice}
+          >
+            <Text>Atualiza Valor</Text>
+          </TouchableOpacity>
+        </View>
 
-        <MaskedTextInput
-          type='currency'
-          style={{
-            width: '100%',
-            color: '#4b2400', 
-            backgroundColor: '#fcf3e6', 
-            borderWidth: 1,
-            borderColor: '#f97316',
-            borderRadius: 8, 
-            height: 50, 
-            paddingLeft: 10, 
-            placeHoldelColor: '#e2e2e2', 
-            marginTop: 8,
-            marginBottom: 8
-          }}
-          options={{
-            prefix: '',
-            precision: 2,
-            decimalSeparator: '.',
-            groupSeparator: ',',
-          }}
-          placeholder='0.00'
-          keyboardType='numeric'
-          onChangeText={(price, rawText) => {
-            setPrice(price)
-          }}
-        />
-
-        <View className="flex flex-row gap-4 justify-normal items-center w-full px-4 h-24">
+        <View className="flex flex-row gap-4 justify-normal items-center w-full h-14">
           <Text className="text-orange-950">Produto pago?</Text>
           <Switch
             trackColor={{false: '#767577', true: '#dde6f5'}}

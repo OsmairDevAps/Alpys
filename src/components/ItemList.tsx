@@ -1,22 +1,14 @@
 import { View, Text } from 'react-native'
-
-interface TransactionList {
-  id: number;
-  client: string;
-  price: number;
-  amount: number;
-  modality: string;
-  datetransaction: string;
-}
+import { IDataTransaction } from '../constants/interface';
 
 interface Props {
-  item: TransactionList
+  item: IDataTransaction
 }
 
 export default function ItemList({ item }: Props) {
   return (
     <View className='w-full p-4 bg-orange-50 rounded mt-2'>
-      <Text>{item.client}</Text>
+      <Text>{item.name}</Text>
       <View className='flex flex-row justify-between items-center'>
         <Text className='w-1/2'>
           {Intl.NumberFormat('pt-BR', {style: 'currency', currency:'BRL'}).format(item.price)}
@@ -24,7 +16,7 @@ export default function ItemList({ item }: Props) {
         <Text className='w-1/2 text-right'>{item.amount} unid(s)</Text>
       </View>
       <View className='flex flex-row justify-between items-center'>
-        <Text className='w-1/2'>{item.modality === 'sell' ? 'Venda' : 'Compra'}</Text>
+        <Text className='w-1/2'>{item.modality === 'buy' ? 'Compra' : 'Venda'}</Text>
         <Text className='w-1/2 text-right'>{item.datetransaction}</Text>
       </View>
     </View>

@@ -13,7 +13,8 @@ type Props = {
 }
 
 export default function FrmProduct({ closeModal, listProducts, product }:Props) {
-  const productDatabase = useProductDatabase()
+  //const productDatabase = useProductDatabase()
+  const productDatabase = useProductSupabase()
   const [id, setId] = useState('')
   const [name, setName] = useState('')
   const [price, setPrice] = useState('')

@@ -49,6 +49,7 @@ export interface ITBuy {
   amount: number;
   price: number;
   datetransaction: string;
+  ispaid: boolean;
 }
 export interface ITSale {
   id: number;

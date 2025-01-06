@@ -3,11 +3,11 @@ import { Switch, Text, View, KeyboardAvoidingView, Platform, Modal, Alert, Touch
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from 'react-native-dropdown-select-list';
-import FrmClient from "./client";
-import { useClientDatabase } from "@/src/database/useClientDatabase";
-import { IClient, ISelectProps, ITSale } from "@/src/constants/interface";
+import { ITSale } from "@/src/constants/interface";
 import { useSaleDatabase } from "@/src/database/useSaleDatabase";
 import { useProductDatabase } from "@/src/database/useProductDatabase";
+import { useProductSupabase } from "@/src/database/useProductSupabase";
+import { useSaleSupabase } from "@/src/database/useSaleSupabase";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
@@ -21,34 +21,16 @@ type SelectProductProps = {
 }
 
 export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
-  const clientDatabase = useClientDatabase()
   const productDatabase = useProductDatabase()
   const saleDatabase = useSaleDatabase()
-  const [selectClients, setSelectClients] = useState<ISelectProps[]>([{ key: '', value: '' }])
   const [selectProducts, setSelectProducts] = useState<SelectProductProps[]>([{ key: '', value: '', price: 0 }])
   const [id, setId] = useState('')
-  const [productId, setProductId] = useState(0)
   const [productName, setProductName] = useState('')
   const [clientName, setClientName] = useState('')
   const [amount, setAmount] = useState('')
   const [price, setPrice] = useState(0)
   const [isPaid, setIsPaid] = useState(false)
-  const [isModalClientOpen, setIsModalClientOpen] = useState(false)
   
-  async function listClients() {
-    try {
-      const response = await clientDatabase.list()
-      if(response) {
-        let newArray: ISelectProps[] = response.map(cli => {
-          return { key: String(cli.id), value: String(cli.name) }
-        })
-        setSelectClients(newArray)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   async function listProducts() {
     try {
       const response = await productDatabase.list()
@@ -112,13 +94,12 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
   }
   
   function updatePrice() {
-    if (productId > 0 ) {
-      const prod = selectProducts.find(sp => Number(sp.key) === Number(productId))
+    if (productName !== '' ) {
+      const prod = selectProducts.find(sp => String(sp.value) === String(productName))
       let value
       let total=0
       if (prod) {
         value = prod.price
-        setProductName(prod.value)
       }        
       if(Number(amount) > 0) {
         total = total + (Number(value) * Number(amount))
@@ -127,16 +108,11 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
     }
   }
 
-  function openModalClient() {
-    setIsModalClientOpen(true)
-  }
-
   function handleClose() {
     closeModal(false)
   }
 
   useEffect(() => {
-    listClients()
     listProducts()
     if(sale) {
       setId(String(sale.id))
@@ -158,25 +134,12 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
           <Text className="text-lg font-bold text-orange-950">LANÇAMENTO DE VENDAS</Text>
         </View>
 
-        <View className="flex-row justify-between w-full gap-4">
-          <SelectList
-            placeholder='Nome do Cliente'
-            inputStyles={{ color: '#431407'}}
-            boxStyles={{ 
-              width: '100%', 
-              backgroundColor: '#fdf7e5', 
-              borderColor: '#f97316', 
-              borderWidth: 1, 
-              marginBottom: 8, 
-              marginTop: 8 
-            }}
-            dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-            setSelected={(val: string) => setClientName(val)}
-            data={selectClients}
-            save="value"
-          />
-          <Button title="+ Cliente" type="Evently" onPress={openModalClient} />
-        </View>
+        <Input 
+          placeholder="Cliente"
+          keyboardType="default"
+          onChangeText={setClientName}
+          value={clientName}
+        />
 
         <SelectList
           placeholder='Produto'
@@ -190,9 +153,9 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
             marginTop: 8 
           }}
           dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-          setSelected={(val: number) => setProductId(val)}
+          setSelected={(val: string) => setProductName(val)}
           data={selectProducts}
-          save="key"
+          save="value"
         />
  
         <Input 
@@ -228,19 +191,6 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
         <Button title="Salvar" onPress={handleSave} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
       </View>
-
-      <Modal
-        transparent={true}
-        animationType='slide'
-        visible={isModalClientOpen}
-        onRequestClose={() => {
-           setIsModalClientOpen(!isModalClientOpen)
-      }}>
-        <FrmClient 
-          closeModal={setIsModalClientOpen} 
-          listSelect={listClients()} 
-        />
-      </Modal>
 
     </KeyboardAvoidingView>
   )

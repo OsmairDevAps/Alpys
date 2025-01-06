@@ -69,6 +69,16 @@ export function useProductDatabase() {
     }
   }
 
+  async function findByName(name: string) {
+    try {
+      const query = "SELECT * FROM products WHERE name="
+      const response = await database.getFirstAsync<IProduct>(query, name)
+      return response
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   async function searchByName(name: string) {
     try {
       const query = "SELECT * FROM products LIKE "
@@ -79,5 +89,5 @@ export function useProductDatabase() {
     }
   }
   
-  return { create, update, remove, list, searchById, searchByName }
+  return { create, update, remove, list, searchById, findByName, searchByName }
 }

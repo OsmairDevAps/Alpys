@@ -3,6 +3,7 @@ import Input from "@/src/components/Input";
 import { useState, useEffect } from "react";
 import { Text, View, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import { useProductDatabase } from "@/src/database/useProductDatabase";
+import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { IProduct } from "@/src/constants/interface";
 
 type Props = {

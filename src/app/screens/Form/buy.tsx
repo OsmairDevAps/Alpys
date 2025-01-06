@@ -5,6 +5,7 @@ import { Text, View, KeyboardAvoidingView, Platform, Alert } from "react-native"
 import { LKind } from "@/src/constants/db";
 import { SelectList } from "react-native-dropdown-select-list";
 import { useBuyDatabase } from "@/src/database/useBuyDatabase";
+import { useBuySupabase } from "@/src/database/useBuySupabase";
 import { ITBuy } from "@/src/constants/interface";
 
 type BuyProps = {
@@ -39,7 +40,8 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
           product_name: productName, 
           amount: Number(amount), 
           price: Number(price), 
-          datetransaction: formattedDate  
+          datetransaction: formattedDate,
+          ispaid: true  
         })
         Alert.alert('Compra atualizada com sucesso!')
       }else {
@@ -50,7 +52,8 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
           product_name: productName, 
           amount: Number(amount), 
           price: Number(price), 
-          datetransaction: formattedDate  
+          datetransaction: formattedDate,
+          ispaid: true  
         })
         Alert.alert('Compra incluída com sucesso!')
       }

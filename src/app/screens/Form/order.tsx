@@ -3,12 +3,10 @@ import { Text, View, Switch, KeyboardAvoidingView, Platform, Keyboard, Modal, To
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from "react-native-dropdown-select-list";
-import { MaskedTextInput } from 'react-native-mask-text'
-import { IOrder, ISelectProps } from "@/src/constants/interface";
+import { IOrder } from "@/src/constants/interface";
 import { useOrderDatabase } from "@/src/database/useOrderDatabase";
-import { useClientDatabase } from "@/src/database/useClientDatabase";
+import { useOrderSupabase } from "@/src/database/useOrderSupabase";
 import { useProductDatabase } from "@/src/database/useProductDatabase";
-import FrmClient from "./client";
 
 type OrderProps = {
   closeModal: (value: boolean) => void;
@@ -23,38 +21,20 @@ type SelectProductProps = {
 }
 
 export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
-  const [selectClients, setSelectClients] = useState<ISelectProps[]>([{ key: '', value: '' }])
   const [selectProducts, setSelectProducts] = useState<SelectProductProps[]>([{ key: '', value: '', price: 0 }])
-  const [isModalClientOpen, setIsModalClientOpen] = useState(false)
+  const [defaultValue, setDefaultValue] = useState({ key: '', value: '' })
   const [id, setId] = useState(0)
   const [clientName, setClientName] = useState('')
-  const [productId, setProductId] = useState('')
   const [productName, setProductName] = useState('')
   const [amount, setAmount] = useState('')
-  const [productPrice, setProductPrice] = useState(0)
   const [price, setPrice] = useState(0)
   const [isDelivery, setIsDelivery] = useState(false)
   const [deliveryFee, setDeliveryFee] = useState('')
   const [address, setAddress] = useState('')
   const [obs, setObs] = useState('')
   const [totPedido, setTotPedido] = useState(0)
-  const clientDatabase = useClientDatabase()
   const productDatabase = useProductDatabase()
   const orderDatabase = useOrderDatabase()
-
-  async function listClients() {
-    try {
-      const response = await clientDatabase.list()
-      if(response) {
-        let newArray: ISelectProps[] = response.map(cli => {
-          return { key: String(cli.id), value: String(cli.name) }
-        })
-        setSelectClients(newArray)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
   async function listProducts() {
     try {
@@ -63,6 +43,13 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
         let newArray: SelectProductProps[] = response.map(pro => {
           return { key: String(pro.id), value: String(pro.name), price: pro.price }
         })
+        if(order) {
+          const product = newArray.find(na => na.value === order.product_name)
+          setDefaultValue({
+            key: String(product?.key),
+            value: String(product?.value)
+          })
+        }
         setSelectProducts(newArray)
       }
     } catch (error) {
@@ -97,13 +84,12 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
   }
 
   function SetValuePrice() {
-    if (Number(productId) > 0 ) {
-      const prod = selectProducts.find(sp => sp.key === productId)
+    if (productName !== '' ) {
+      const prod = selectProducts.find(sp => sp.value === productName)
       let value
       let total=0
       if (prod) {
         value = prod.price
-        setProductName(prod.value)
       }
       if (Number(amount) > 0) {
         total = total + (Number(amount) * Number(value))
@@ -119,15 +105,12 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
     closeModal(false)
   }
   
-  function openModalClient() {
-    setIsModalClientOpen(true)
-  }
-
   useEffect(() => {
-    listClients()
     listProducts()
     if(order) {
       setId(order.id)
+      setClientName(order.client_name)
+      setProductName(order.product_name)
       setAmount(String(order.amount))
       setPrice(order.price)
       setIsDelivery(order.isdelivery)
@@ -159,9 +142,10 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
           inputStyles={{ color: '#431407'}}
           boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
           dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-          setSelected={(val: string) => setProductId(val)}
+          defaultOption={defaultValue}
+          setSelected={(val: string) => setProductName(val)}
           data={selectProducts}
-          save="key"
+          save="value"
         />
         
         <Input 
@@ -223,7 +207,7 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
         <Button title="Fechar" type="Close" onPress={handleClose} />
       </View>
 
-      <Modal
+      {/* <Modal
         transparent={true}
         animationType='slide'
         visible={isModalClientOpen}
@@ -231,7 +215,8 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
            setIsModalClientOpen(!isModalClientOpen)
       }}>
         <FrmClient closeModal={setIsModalClientOpen} listSelect={listClients()} />
-      </Modal>
+      </Modal> */}
+      
     </KeyboardAvoidingView>
     )
 }

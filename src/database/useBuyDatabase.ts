@@ -6,7 +6,7 @@ export function useBuyDatabase() {
 
   async function create(data: Omit<ITBuy, 'id'>) {
     const statemant = await database.prepareAsync(
-      "INSERT INTO transactions(modality, place, kind, product_name, amount, price, datetransaction) VALUES($modality, $place, $kind, $product_name, $amount, $price, $datetransaction)"
+      "INSERT INTO transactions(modality, place, kind, product_name, amount, price, datetransaction, ispaid) VALUES($modality, $place, $kind, $product_name, $amount, $price, $datetransaction, $ispaid)"
     )
     try {
       const result = await statemant.executeAsync({
@@ -16,7 +16,8 @@ export function useBuyDatabase() {
         $product_name: data.product_name, 
         $amount: data.amount, 
         $price: data.price, 
-        $datetransaction: data.datetransaction
+        $datetransaction: data.datetransaction,
+        $ispaid: data.ispaid
       })
       const insertedRow = result.lastInsertRowId.toLocaleString()
       return { insertedRow }
@@ -29,7 +30,7 @@ export function useBuyDatabase() {
 
   async function update(data: ITBuy) {
     const statemant = await database.prepareAsync(
-      "UPDATE transactions SET place=$place, kind=$kind, product_name=$product_name, amount=$amount, price=$price, datetransaction=$datetransaction WHERE id=$id"
+      "UPDATE transactions SET place=$place, kind=$kind, product_name=$product_name, amount=$amount, price=$price, datetransaction=$datetransaction, ispaid=$ispaid WHERE id=$id"
     )
     try {
       const result = await statemant.executeAsync({
@@ -39,7 +40,8 @@ export function useBuyDatabase() {
         $product_name: data.product_name, 
         $amount: data.amount, 
         $price: data.price, 
-        $datetransaction: data.datetransaction
+        $datetransaction: data.datetransaction,
+        $ispaid: data.ispaid
       })
       const insertedRow = result.lastInsertRowId.toLocaleString()
       return { insertedRow }

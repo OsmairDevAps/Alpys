@@ -1,23 +1,25 @@
-//https://nativecn.vercel.app/docs/installation
+import { useEffect, useState } from 'react';
 import { Text, View, FlatList, Dimensions, useWindowDimensions } from 'react-native';
-import { LineChart } from 'react-native-chart-kit'
+import { router } from 'expo-router'
 import Header from '@/src/components/Header';
 import ItemList from '@/src/components/ItemList';
 import { GraphicProps, IDataTransaction } from '@/src/constants/interface'
 import { useTransactionDatabase } from '@/src/database/useTransactionDatabase';
-import { useEffect, useState } from 'react';
 
 export default function Listagem() {
   const transactionDatabase = useTransactionDatabase()
+  const [balances, setBalances] = useState<GraphicProps[]>([])
+  const [income, setIncome] = useState(0)
+  const [totalPriceBuy, setTotalPriceBuy] = useState(0)
+  const [totalPriceSale, setTotalPriceSale] = useState(0)
+  const [totalBalance, setTotalBalance] = useState(0)
   const [dataTransaction, setDataTransaction] = useState<IDataTransaction[]>([])
-  const [graphic, setGraphic] = useState<GraphicProps[]>([])
-  const [labels, setLabels] = useState<string[]>([])
-  const [dataGraphic, setDataGraphic] = useState<number[]>([])
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const restHeight = (windowHeight - 348).toFixed()
   const { height, width } = useWindowDimensions();
-  
+  const [styleBalance, setStyleBalance] = useState('flex justify-between items-center bg-white  p-4 gap-2 border-[1px] border-orange-300')
+
   async function listTransactions() {
     try {
       const response = await transactionDatabase.list()
@@ -27,88 +29,71 @@ export default function Listagem() {
     }
   }
 
-  // labels: ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN"],
-  // { data: [120, 130, 140, 150, 160, 170] }
-  async function listTransactionsGraphic() {
+  async function loadBalance() {
     try {
-      const response = await transactionDatabase.listGraphic()
-      if(response) {
-        let newArray = response.map(lab => {
-          return [ lab.datetransaction, lab.price ]
-        })
-        console.log(newArray)
-      }
+      const response: GraphicProps[] = await transactionDatabase.listGraphic()
+      response.map(res => {
+        if (res.modality === 'buy') {
+          setTotalPriceBuy(Number(res.total_price))
+        }
+        if (res.modality === 'sale') {
+          setTotalPriceSale(Number(res.total_price))
+        }
+      })
     } catch (error) {
       console.log(error)
     }
   }
 
-  const dataChart = {
-    labels: ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN"],
-    datasets: [
-      {
-        data: [
-          Math.random() * 100,
-          Math.random() * 100,
-          Math.random() * 100,
-          Math.random() * 100,
-          Math.random() * 100,
-          Math.random() * 100
-        ],
-        color: (opacity = 1) => `rgba(242, 121, 0, ${opacity})`,
-        strokeWidth: 2
-      }
-    ],
-    legend: ["VENDAS"]
+  function redirect(modality: string, id: number) {
+    if (modality === 'buy') {
+      router.replace('../screens/buy')
+    }
+    if (modality === 'sale') {
+      router.replace('../screens/sale')
+    }
   }
-  
+
   useEffect(() => {
     listTransactions()
-    listTransactionsGraphic()
-  },[])
+    loadBalance()
+  }, [])
 
   return (
-    <View className='flex flex-1 items-center justify-start bg-orange-950'>
+    <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
 
-      <View className='w-full h-48 my-4'>
-        <LineChart
-          data={dataChart}
-          width={width}
-          height={180}
-          verticalLabelRotation={0}
-          chartConfig={{
-            backgroundGradientFrom: "#fcfcfc",
-            backgroundGradientFromOpacity: 0,
-            backgroundGradientTo: "#fb8c00",
-            backgroundGradientToOpacity: 0.5,
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            strokeWidth: 2,
-            barPercentage: 0.5,
-            useShadowColorFromDataset: false,
-            decimalPlaces: 2, 
-            style: {
-              borderRadius: 16
-            },
-            propsForDots: {
-              r: "6",
-              strokeWidth: "2",
-              stroke: "#ffa726"
-            }
-          }}
-          bezier
-          yAxisLabel="R$"
-        />
+      <View className='flex flex-row w-full h-48'>
+        <View className='flex justify-between items-center bg-white  p-4 gap-2 border-[1px] border-orange-300'>
+          <Text className={(totalPriceSale - totalPriceBuy) > 0 ? 'text-xl font-bold text-green-700' : 'text-xl font-bold text-red-700'}>SALDO</Text>
+          <Text className={(totalPriceSale - totalPriceBuy) > 0 ? 'text-4xl font-bold text-green-700' : 'text-4xl font-bold text-red-700'}>
+            {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPriceSale - totalPriceBuy)}
+          </Text>
+
+          <View className='flex flex-row justify-center items center w-full gap-2 p-4'>
+            <View className='w-1/2 h-full px-4'>
+              <Text className=' text-blue-800 text-center font-bold'>VENDAS</Text>
+              <Text className=' text-blue-800 text-center font-bold'>
+                {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPriceSale)}
+              </Text>
+            </View>
+            <View className="w-1/2 h-full px-4">
+              <Text className='text-red-800 text-center font-bold'>COMPRAS</Text>
+              <Text className='text-red-800 text-center font-bold'>
+                {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPriceBuy)}
+              </Text>
+            </View>
+          </View>
+        </View>
       </View>
 
-      <View className='w-full mt-4 pt-4 pb-2 pl-4 pr-4'>
-        <Text className='text-white my-2'>Últimos lançamentos:</Text>
-        <FlatList 
-          className='flex h-[440px]'
+      <View className='w-full py-4 px-4'>
+        <Text className='text-orange-950 font-bold text-lg'>ÚLTIMOS LANÇAMENTOS:</Text>
+        <FlatList
+          className='flex h-[460px]'
           data={dataTransaction}
           keyExtractor={item => String(item.id)}
-          renderItem={ ({item}) => 
+          renderItem={({ item }) =>
             <ItemList item={item} />
           }
         />

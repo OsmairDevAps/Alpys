@@ -10,7 +10,6 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-
   return (
     <Tabs
       screenOptions={{

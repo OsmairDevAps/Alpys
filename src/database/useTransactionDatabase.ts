@@ -16,7 +16,7 @@ export function useTransactionDatabase() {
 
   async function listGraphic() {
     try {
-      const query = "SELECT datetransaction, price FROM transactions GROUP BY datetransaction, price ORDER BY datetransaction"
+      const query = "SELECT modality, SUM(price) as total_price FROM transactions GROUP BY modality ORDER BY modality, datetransaction"
       const response = await database.getAllAsync<GraphicProps>(query)
       return response
     } catch (error) {

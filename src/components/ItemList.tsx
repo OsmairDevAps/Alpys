@@ -7,11 +7,11 @@ interface Props {
 
 export default function ItemList({ item }: Props) {
   return (
-    <View className='w-full p-4 bg-orange-50 rounded mt-2'>
+    <View className='w-full p-4 bg-white rounded-lg mt-2'>
       <Text>{item.name}</Text>
       <View className='flex flex-row justify-between items-center'>
         <Text className='w-1/2'>
-          {Intl.NumberFormat('pt-BR', {style: 'currency', currency:'BRL'}).format(item.price)}
+          {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price)}
         </Text>
         <Text className='w-1/2 text-right'>{item.amount} unid(s)</Text>
       </View>

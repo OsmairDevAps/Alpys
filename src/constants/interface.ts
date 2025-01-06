@@ -3,8 +3,8 @@ export interface ISelectProps {
   value: string;
 }
 export interface GraphicProps {
-  datetransaction: string;
-  price: number;
+  modality: string;
+  total_price: number;
 }
 
 export interface IProduct {

@@ -5,9 +5,11 @@ import Header from '@/src/components/Header';
 import ItemList from '@/src/components/ItemList';
 import { GraphicProps, IDataTransaction } from '@/src/constants/interface'
 import { useTransactionDatabase } from '@/src/database/useTransactionDatabase';
+import { useTransactionSupabase } from '@/src/database/useTransactionSupabase';
 
 export default function Listagem() {
-  const transactionDatabase = useTransactionDatabase()
+  // const transactionDatabase = useTransactionDatabase()
+  const transactionDatabase = useTransactionSupabase()
   const [balances, setBalances] = useState<GraphicProps[]>([])
   const [income, setIncome] = useState(0)
   const [totalPriceBuy, setTotalPriceBuy] = useState(0)
@@ -18,12 +20,13 @@ export default function Listagem() {
   const windowHeight = Dimensions.get('window').height;
   const restHeight = (windowHeight - 348).toFixed()
   const { height, width } = useWindowDimensions();
-  const [styleBalance, setStyleBalance] = useState('flex justify-between items-center bg-white  p-4 gap-2 border-[1px] border-orange-300')
 
   async function listTransactions() {
     try {
       const response = await transactionDatabase.list()
-      setDataTransaction(response)
+      if(response) {
+        setDataTransaction(response)
+      }
     } catch (error) {
       console.log(error)
     }
@@ -32,14 +35,16 @@ export default function Listagem() {
   async function loadBalance() {
     try {
       const response: GraphicProps[] = await transactionDatabase.listGraphic()
-      response.map(res => {
-        if (res.modality === 'buy') {
-          setTotalPriceBuy(Number(res.total_price))
-        }
-        if (res.modality === 'sale') {
-          setTotalPriceSale(Number(res.total_price))
-        }
-      })
+      if(response) {
+        response.map(res => {
+          if (res.modality === 'buy') {
+            setTotalPriceBuy(Number(res.total_price))
+          }
+          if (res.modality === 'sale') {
+            setTotalPriceSale(Number(res.total_price))
+          }
+        })
+      }
     } catch (error) {
       console.log(error)
     }

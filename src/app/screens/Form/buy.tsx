@@ -15,7 +15,8 @@ type BuyProps = {
 }
 
 export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
-  const buyDatabase = useBuyDatabase()
+  // const buyDatabase = useBuyDatabase()
+  const buyDatabase = useBuySupabase()
   const [id, setId] = useState('')
   const [place, setPlace] = useState('')
   const [kind, setKind] = useState('')

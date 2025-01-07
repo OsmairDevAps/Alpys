@@ -51,11 +51,11 @@ export function useBuySupabase() {
   
   async function list() {
     try {
-      const response = await supabase
+      const { data } = await supabase
         .from('transactions')
         .select('*')
         .eq('modality','buy')
-      return response
+      return data
     } catch (error) {
       throw error
     }
@@ -63,11 +63,11 @@ export function useBuySupabase() {
   
   async function searchById(id: number) {
     try {
-      const response = await supabase
+      const { data } = await supabase
         .from('transactions')
         .select('*')
         .eq('id', id)
-      return response
+      return data
     } catch (error) {
       throw error
     }
@@ -75,12 +75,12 @@ export function useBuySupabase() {
   
   async function searchByPeriod(dtini: string, dtfin: string) {
     try {
-      const response = await supabase
+      const { data } = await supabase
         .from('transactions')
         .select('*')
         .eq('modality', 'buy')
         .rangeAdjacent('datetransaction', `[${dtini}, ${dtfin}]`)
-      return response
+      return data
     } catch (error) {
       throw error
     }

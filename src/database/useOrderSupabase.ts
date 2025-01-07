@@ -53,8 +53,8 @@ export function useOrderSupabase() {
   
   async function list() {
     try {
-      const response = await supabase.from('orders').select('*')
-      return response
+      const { data } = await supabase.from('orders').select('*')
+      return data
     } catch (error) {
       throw error
     }
@@ -62,8 +62,8 @@ export function useOrderSupabase() {
   
   async function searchById(id: number) {
     try {
-      const response = await supabase.from('orders').select('*').eq('id', id)
-      return response
+      const { data } = await supabase.from('orders').select('*').eq('id', id)
+      return data
     } catch (error) {
       throw error
     }
@@ -71,8 +71,8 @@ export function useOrderSupabase() {
   
   async function searchByName(clientname: string) {
     try {
-      const response = await supabase.from('orders').select('*').like('client_name', clientname)
-      return response
+      const { data } = await supabase.from('orders').select('*').like('client_name', clientname)
+      return data
     } catch (error) {
       throw error
     }

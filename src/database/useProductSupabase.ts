@@ -43,8 +43,11 @@ export function useProductSupabase() {
 
   async function list() {
     try {
-      const response = await supabase.from('products').select('*').order('name', {ascending: true})
-      return response
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .order('name', {ascending: true})
+      return data
     } catch (error) {
       console.log(error)
     }
@@ -52,8 +55,8 @@ export function useProductSupabase() {
 
   async function searchById(id: number) {
     try {
-      const response = await supabase.from('products').select('*').eq('id', id)
-      return response
+      const { data } = await supabase.from('products').select('*').eq('id', id)
+      return data
     } catch (error) {
       console.log(error)
     }
@@ -61,8 +64,8 @@ export function useProductSupabase() {
 
   async function findByName(name: string) {
     try {
-      const response = await supabase.from('products').select('*').eq('name', name)
-      return response
+      const { data } = await supabase.from('products').select('*').eq('name', name)
+      return data 
     } catch (error) {
       console.log(error)
     }
@@ -70,8 +73,8 @@ export function useProductSupabase() {
 
   async function searchByName(name: string) {
     try {
-      const response = await supabase.from('products').select('*').like('name', name)
-      return response
+      const { data } = await supabase.from('products').select('*').like('name', name)
+      return data
     } catch (error) {
       console.log(error)
     }

@@ -6,9 +6,11 @@ import FrmSale from "../screens/Form/sale";
 import { CardSale } from "@/src/components/Card/sale";
 import { ITSale } from "@/src/constants/interface";
 import { useSaleDatabase } from "@/src/database/useSaleDatabase";
+import { useSaleSupabase } from "@/src/database/useSaleSupabase";
 
 export default function Sales() {
-  const saleDatabase = useSaleDatabase()
+  // const saleDatabase = useSaleDatabase()
+  const saleDatabase = useSaleSupabase()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [sales, setSales] = useState<ITSale[]>([])
   const [nullSale, setNullSale] = useState<ITSale>()
@@ -17,7 +19,9 @@ export default function Sales() {
   async function listSales() {
     try {
       const response = await saleDatabase.list()
-      setSales(response)
+      if(response){
+        setSales(response)
+      }
     } catch (error) {
       console.log(error)
     }

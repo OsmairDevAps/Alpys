@@ -21,8 +21,10 @@ type SelectProductProps = {
 }
 
 export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
-  const productDatabase = useProductDatabase()
-  const saleDatabase = useSaleDatabase()
+  // const productDatabase = useProductDatabase()
+  const productDatabase = useProductSupabase()
+  // const saleDatabase = useSaleDatabase()
+  const saleDatabase = useSaleSupabase()
   const [selectProducts, setSelectProducts] = useState<SelectProductProps[]>([{ key: '', value: '', price: 0 }])
   const [id, setId] = useState('')
   const [productName, setProductName] = useState('')

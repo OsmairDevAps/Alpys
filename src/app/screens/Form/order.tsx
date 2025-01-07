@@ -7,6 +7,7 @@ import { IOrder } from "@/src/constants/interface";
 import { useOrderDatabase } from "@/src/database/useOrderDatabase";
 import { useOrderSupabase } from "@/src/database/useOrderSupabase";
 import { useProductDatabase } from "@/src/database/useProductDatabase";
+import { useProductSupabase } from "@/src/database/useProductSupabase";
 
 type OrderProps = {
   closeModal: (value: boolean) => void;
@@ -33,8 +34,10 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
   const [address, setAddress] = useState('')
   const [obs, setObs] = useState('')
   const [totPedido, setTotPedido] = useState(0)
-  const productDatabase = useProductDatabase()
-  const orderDatabase = useOrderDatabase()
+  // const productDatabase = useProductDatabase()
+  const productDatabase = useProductSupabase()
+  // const orderDatabase = useOrderDatabase()
+  const orderDatabase = useOrderSupabase()
 
   async function listProducts() {
     try {

@@ -3,12 +3,14 @@ import { Text, View, Modal, TouchableOpacity, FlatList } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import FrmOrder from "../screens/Form/order";
 import Header from "@/src/components/Header";
-import { useOrderDatabase } from "@/src/database/useOrderDatabase";
 import { IOrder } from "@/src/constants/interface";
 import { CardOrder } from "@/src/components/Card/order";
+import { useOrderDatabase } from "@/src/database/useOrderDatabase";
+import { useOrderSupabase } from "@/src/database/useOrderSupabase";
 
 export default function Order() {
-  const orderDatabase = useOrderDatabase()
+  // const orderDatabase = useOrderDatabase()
+  const orderDatabase = useOrderSupabase()
   const [order, setOrder] = useState<IOrder>()
   const [nullOrder, setNullOrder] = useState<IOrder>()
   const [orders, setOrders] = useState<IOrder[]>([])
@@ -17,7 +19,9 @@ export default function Order() {
   async function list() {
     try {
       const response = await orderDatabase.list()
-      setOrders(response)
+      if(response) {
+        setOrders(response)
+      }
     } catch (error) {
       console.log(error)
     }

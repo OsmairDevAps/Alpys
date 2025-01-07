@@ -6,9 +6,11 @@ import FrmBuy from '../screens/Form/buy';
 import { ITBuy } from '@/src/constants/interface';
 import { useBuyDatabase } from '@/src/database/useBuyDatabase';
 import { CardBuy } from '@/src/components/Card/buy';
+import { useBuySupabase } from '@/src/database/useBuySupabase';
 
 export default function Buy() {
-  const buyDatabase = useBuyDatabase()
+  // const buyDatabase = useBuyDatabase()
+  const buyDatabase = useBuySupabase()
   const [nullBuy, setNullBuy] = useState<ITBuy>()
   const [buy, setBuy] = useState<ITBuy>()
   const [buys, setBuys] = useState<ITBuy[]>([])
@@ -17,7 +19,9 @@ export default function Buy() {
   async function listBuys() {
     try {
       const response = await buyDatabase.list()
-      setBuys(response)
+      if(response) {
+        setBuys(response)
+      }
     } catch (error) {
       console.log('Erro ao listar: ', error)
     }

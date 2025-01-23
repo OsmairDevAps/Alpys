@@ -8,6 +8,7 @@ export async function initializeDatabase(database: SQLiteDatabase) {
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      category TEXT,
       name TEXT NOT NULL,
       price DOUBLE,
       photo TEXT,

@@ -8,6 +8,7 @@ import { useSaleDatabase } from "@/src/database/useSaleDatabase";
 import { useProductDatabase } from "@/src/database/useProductDatabase";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
+import { useFinance } from "@/src/contexts/transactionContext";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
@@ -21,9 +22,8 @@ type SelectProductProps = {
 }
 
 export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
-  // const productDatabase = useProductDatabase()
+  const { updateSales } = useFinance();
   const productDatabase = useProductSupabase()
-  // const saleDatabase = useSaleDatabase()
   const saleDatabase = useSaleSupabase()
   const [selectProducts, setSelectProducts] = useState<SelectProductProps[]>([{ key: '', value: '', price: 0 }])
   const [id, setId] = useState('')
@@ -38,7 +38,7 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
       const response = await productDatabase.list()
       if(response) {
         let newArray: SelectProductProps[] = response.map(pro => {
-          return { key: String(pro.id), value: String(pro.name), price: pro.price }
+          return { key: String(pro.id), value: String(pro.category) +' - '+ String(pro.name), price: pro.price }
         })
         setSelectProducts(newArray)
       }
@@ -78,6 +78,7 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
           ispaid: isPaid
         })
         Alert.alert('Venda incluída com sucesso!')
+        updateSales(Number(price));
       }
       setId('')
       setProductName('')

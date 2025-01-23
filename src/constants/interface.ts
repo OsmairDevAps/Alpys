@@ -6,9 +6,13 @@ export interface GraphicProps {
   modality: string;
   total_price: number;
 }
-
+export interface ICategory {
+  id: number;
+  category: string;
+}
 export interface IProduct {
   id: number;
+  category: string;
   name: string;
   price: number;
   photo: string;

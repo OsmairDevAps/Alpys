@@ -7,6 +7,7 @@ import { SelectList } from "react-native-dropdown-select-list";
 import { useBuyDatabase } from "@/src/database/useBuyDatabase";
 import { useBuySupabase } from "@/src/database/useBuySupabase";
 import { ITBuy } from "@/src/constants/interface";
+import { useFinance } from "@/src/contexts/transactionContext";
 
 type BuyProps = {
   closeModal: (value: boolean) => void;
@@ -15,6 +16,7 @@ type BuyProps = {
 }
 
 export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
+  const { updateBuys } = useFinance()
   // const buyDatabase = useBuyDatabase()
   const buyDatabase = useBuySupabase()
   const [id, setId] = useState('')
@@ -56,6 +58,7 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
           datetransaction: formattedDate,
           ispaid: true  
         })
+        updateBuys(Number(price))
         Alert.alert('Compra incluída com sucesso!')
       }
       setPlace('')

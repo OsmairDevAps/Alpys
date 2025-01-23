@@ -14,6 +14,10 @@ export function CardProduct({item, onDelete, onUpdate, ...rest}: Props) {
       
       <TouchableOpacity className="w-80 border-dotted border-orange-50 border-[1px]" {...rest}>
           <View className="flex flex-row gap-2">
+            <Text className="text-lg font-bold">Categoria:</Text>
+            <Text className="text-lg">{item.category}</Text>
+          </View>
+          <View className="flex flex-row gap-2">
             <Text className="text-lg font-bold">Produto:</Text>
             <Text className="text-lg">{item.name}</Text>
           </View>

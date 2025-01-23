@@ -6,9 +6,10 @@ import ItemList from '@/src/components/ItemList';
 import { GraphicProps, IDataTransaction } from '@/src/constants/interface'
 import { useTransactionDatabase } from '@/src/database/useTransactionDatabase';
 import { useTransactionSupabase } from '@/src/database/useTransactionSupabase';
+import { useFinance } from '@/src/contexts/transactionContext';
 
 export default function Listagem() {
-  // const transactionDatabase = useTransactionDatabase()
+  const { data, updateSales, updateBuys } = useFinance();
   const transactionDatabase = useTransactionSupabase()
   const [balances, setBalances] = useState<GraphicProps[]>([])
   const [income, setIncome] = useState(0)
@@ -39,9 +40,11 @@ export default function Listagem() {
         response.map(res => {
           if (res.modality === 'buy') {
             setTotalPriceBuy(Number(res.total_price))
+            updateBuys(Number(res.total_price))
           }
           if (res.modality === 'sale') {
             setTotalPriceSale(Number(res.total_price))
+            updateSales(Number(res.total_price))
           }
         })
       }
@@ -62,6 +65,9 @@ export default function Listagem() {
   useEffect(() => {
     listTransactions()
     loadBalance()
+    setTotalPriceBuy(data.buys)
+    setTotalPriceSale(data.sales)
+    setTotalBalance(data.balance)
   }, [])
 
   return (

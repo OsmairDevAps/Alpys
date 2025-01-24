@@ -1,12 +1,13 @@
-import { View, Text } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { IDataTransaction } from '../constants/interface';
 import { useEffect, useState } from 'react';
 
 interface Props {
   item: IDataTransaction
+  onPress?: () => void
 }
 
-export default function ItemList({ item }: Props) {
+export default function ItemList({ item, onPress }: Props) {
   const [styleModality, setStyleModality] = useState('w-1/2')
   const dateString = String(item.created_at);
   const validDateString = dateString.replace(' ', 'T').slice(0, 23); // Ajusta para '2025-01-07T16:39:30.743'
@@ -30,18 +31,23 @@ export default function ItemList({ item }: Props) {
   },[])
 
   return (
+    <TouchableOpacity onPress={onPress}>
     <View className='w-full p-4 bg-white rounded-lg border-[1px] border-orange-200 mt-2'>
       <Text className='text-xl font-bold'>{item.name}</Text>
+      
       <View className='flex flex-row justify-between items-center'>
         <Text className='w-1/2 text-lg'>
           {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price)}
         </Text>
         <Text className='w-1/2 text-right'>{item.amount} unid(s)</Text>
       </View>
+      
       <View className='flex flex-row justify-between items-center'>
         <Text className={styleModality}>{item.modality === 'buy' ? 'Compra' : 'Venda'}</Text>
         <Text className='w-1/2 text-right'>{formattedDate}</Text>
       </View>
+
     </View>
+    </TouchableOpacity>
   )
 }

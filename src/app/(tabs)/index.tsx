@@ -1,92 +1,56 @@
-import { useEffect, useState } from 'react';
-import { Text, View, FlatList, Dimensions, useWindowDimensions } from 'react-native';
+import { Text, View, FlatList, Modal } from 'react-native';
 import { router } from 'expo-router'
-import { GraphicProps, IDataTransaction } from '@/src/constants/interface'
-import { useTransactionSupabase } from '@/src/database/useTransactionSupabase';
 import useFinance from '@/src/app/contexts/transactionContext';
 import Header from '@/src/components/Header';
 import ItemList from '@/src/components/ItemList';
+import { useState } from 'react';
+import ViewBuy from '../screens/view/buy';
+import ViewSale from '../screens/view/sale';
 
 export default function Listagem() {
-  const { data, updateSales, updateBuys } = useFinance();
-  const transactionDatabase = useTransactionSupabase()
-  const [totalPriceBuy, setTotalPriceBuy] = useState(0)
-  const [totalPriceSale, setTotalPriceSale] = useState(0)
-  const [dataTransaction, setDataTransaction] = useState<IDataTransaction[]>([])
-  const windowWidth = Dimensions.get('window').width;
-  const windowHeight = Dimensions.get('window').height;
-  const restHeight = (windowHeight - 348).toFixed()
-  const { height, width } = useWindowDimensions();
-
-  async function listTransactions() {
-    try {
-      const response = await transactionDatabase.list()
-      if(response) {
-        setDataTransaction(response)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async function loadBalance() {
-    try {
-      const response: GraphicProps[] = await transactionDatabase.listGraphic()
-      if(response) {
-        response.map(res => {
-          if (res.modality === 'buy') {
-            setTotalPriceBuy(Number(res.total_price))
-            updateBuys(Number(res.total_price))
-          }
-          if (res.modality === 'sale') {
-            setTotalPriceSale(Number(res.total_price))
-            updateSales(Number(res.total_price))
-          }
-        })
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  const { data, dataTransaction, isLoading } = useFinance();
+  const [idBuy, setIdBuy] = useState(0)
+  const [idSale, setIdSale] = useState(0)
+  const [isModalBuyOpen, setIsModalBuyOpen] = useState(false)
+  const [isModalSaleOpen, setIsModalSaleOpen] = useState(false)
 
   function redirect(modality: string, id: number) {
     if (modality === 'buy') {
-      router.replace('../screens/buy')
+      setIsModalBuyOpen(true)
+      setIdBuy(id)
     }
     if (modality === 'sale') {
-      router.replace('../screens/sale')
+      setIsModalSaleOpen(true)
+      setIdSale(id)
     }
   }
 
-  useEffect(() => {
-    listTransactions()
-    loadBalance()
-    setTotalPriceBuy(data.buys)
-    setTotalPriceSale(data.sales)
-  }, [])
+  if(isLoading) {
+    return <Text>Carregando...</Text>
+  }
 
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
-
+      
       <View className='flex flex-row w-full h-48'>
         <View className='flex justify-between items-center bg-white  p-4 gap-2 border-[1px] border-orange-300'>
-          <Text className={(totalPriceSale - totalPriceBuy) > 0 ? 'text-xl font-bold text-green-700' : 'text-xl font-bold text-red-700'}>SALDO</Text>
-          <Text className={(totalPriceSale - totalPriceBuy) > 0 ? 'text-4xl font-bold text-green-700' : 'text-4xl font-bold text-red-700'}>
-            {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPriceSale - totalPriceBuy)}
+          <Text className={(data.balance) > 0 ? 'text-xl font-bold text-green-700' : 'text-xl font-bold text-red-700'}>SALDO</Text>
+          <Text className={(data.balance) > 0 ? 'text-4xl font-bold text-green-700' : 'text-4xl font-bold text-red-700'}>
+            {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.balance)}
           </Text>
 
           <View className='flex flex-row justify-center items center w-full gap-2 p-4'>
             <View className='w-1/2 h-full px-4'>
               <Text className=' text-blue-800 text-center font-bold'>VENDAS</Text>
               <Text className=' text-blue-800 text-center font-bold'>
-                {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPriceSale)}
+                {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.sales)}
               </Text>
             </View>
             <View className="w-1/2 h-full px-4">
               <Text className='text-red-800 text-center font-bold'>COMPRAS</Text>
               <Text className='text-red-800 text-center font-bold'>
-                {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalPriceBuy)}
+                {Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.buys)}
               </Text>
             </View>
           </View>
@@ -100,10 +64,36 @@ export default function Listagem() {
           data={dataTransaction}
           keyExtractor={item => String(item.id)}
           renderItem={({ item }) =>
-            <ItemList item={item} />
+            <ItemList item={item} onPress={() => redirect(item.modality, item.id)} />
           }
         />
       </View>
+      
+      <Modal
+        transparent={true}
+        animationType='slide'
+        visible={isModalBuyOpen}
+        onRequestClose={() => {
+          setIsModalBuyOpen(!isModalBuyOpen)
+      }}>
+        <ViewBuy 
+          closeModal={setIsModalBuyOpen} 
+          id={idBuy}
+        />
+      </Modal>
+
+      <Modal
+        transparent={true}
+        animationType='slide'
+        visible={isModalSaleOpen}
+        onRequestClose={() => {
+          setIsModalSaleOpen(!isModalSaleOpen)
+      }}>
+        <ViewSale 
+          closeModal={setIsModalSaleOpen} 
+          id={idBuy}
+        />
+      </Modal>
     </View>
   );
 }

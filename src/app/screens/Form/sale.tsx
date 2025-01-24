@@ -88,9 +88,6 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
       } catch (error) {
       console.log(error)
     }
-    const data = {
-    }
-    console.log(data)
     await listSales
   }
   
@@ -165,7 +162,7 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
           onChangeText={setAmount}
           value={amount}
         />
- 
+  
         <View className="flex flex-row justify-start items-center w-full h-12 gap-2">
           <Text>Valor total:</Text>
           <Text>{price}</Text>

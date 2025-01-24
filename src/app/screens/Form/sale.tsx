@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { Switch, Text, View, KeyboardAvoidingView, Platform, Modal, Alert, TouchableOpacity } from "react-native";
+import { Switch, Text, View, KeyboardAvoidingView, Platform, Alert, TouchableOpacity } from "react-native";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from 'react-native-dropdown-select-list';
 import { ITSale } from "@/src/constants/interface";
-import { useSaleDatabase } from "@/src/database/useSaleDatabase";
-import { useProductDatabase } from "@/src/database/useProductDatabase";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
-import { useFinance } from "@/src/contexts/transactionContext";
+import useFinance from "@/src/app/contexts/transactionContext";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
@@ -77,8 +75,8 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
           datetransaction: formattedDate,
           ispaid: isPaid
         })
-        Alert.alert('Venda incluída com sucesso!')
         updateSales(Number(price));
+        Alert.alert('Venda incluída com sucesso!')
       }
       setId('')
       setProductName('')

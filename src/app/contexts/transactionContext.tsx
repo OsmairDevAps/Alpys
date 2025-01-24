@@ -28,7 +28,7 @@ export const FinanceProvider = ({ children }: { children: React.ReactNode }) => 
   const updateBuys = (value: number) => {
     setData((prev) => ({
       ...prev,
-      purchases: prev.buys + value,
+      buys: prev.buys + value,
       balance: prev.balance - value,
     }));
   };
@@ -40,7 +40,7 @@ export const FinanceProvider = ({ children }: { children: React.ReactNode }) => 
   );
 };
 
-export const useFinance = () => {
+export default function useFinance() {
   const context = useContext(FinanceContext);
   if (!context) throw new Error("useFinance must be used within FinanceProvider");
   return context;

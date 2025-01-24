@@ -8,7 +8,15 @@ interface Props {
 
 export default function ItemList({ item }: Props) {
   const [styleModality, setStyleModality] = useState('w-1/2')
-
+  const dateString = String(item.created_at);
+  const validDateString = dateString.replace(' ', 'T').slice(0, 23); // Ajusta para '2025-01-07T16:39:30.743'
+  const date = new Date(validDateString);
+  const formattedDate = Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+  }).format(date);
+  
   function loadStyle() {
     if(item.modality === 'buy') {
       setStyleModality('w-1/2 text-red-800')
@@ -32,7 +40,7 @@ export default function ItemList({ item }: Props) {
       </View>
       <View className='flex flex-row justify-between items-center'>
         <Text className={styleModality}>{item.modality === 'buy' ? 'Compra' : 'Venda'}</Text>
-        <Text className='w-1/2 text-right'>{item.datetransaction}</Text>
+        <Text className='w-1/2 text-right'>{formattedDate}</Text>
       </View>
     </View>
   )

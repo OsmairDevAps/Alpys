@@ -1,7 +1,7 @@
 import { SQLiteProvider } from 'expo-sqlite'
 import { Stack } from 'expo-router';
 import { initializeDatabase } from '../database/initializeDatabase';
-import { FinanceProvider } from '../contexts/transactionContext';
+import { FinanceProvider } from './contexts/transactionContext';
 import '../styles/global.css'
 
 export default function RootLayout() {

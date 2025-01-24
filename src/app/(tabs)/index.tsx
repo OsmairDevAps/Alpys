@@ -1,21 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Text, View, FlatList, Dimensions, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router'
+import { GraphicProps, IDataTransaction } from '@/src/constants/interface'
+import { useTransactionSupabase } from '@/src/database/useTransactionSupabase';
+import useFinance from '@/src/app/contexts/transactionContext';
 import Header from '@/src/components/Header';
 import ItemList from '@/src/components/ItemList';
-import { GraphicProps, IDataTransaction } from '@/src/constants/interface'
-import { useTransactionDatabase } from '@/src/database/useTransactionDatabase';
-import { useTransactionSupabase } from '@/src/database/useTransactionSupabase';
-import { useFinance } from '@/src/contexts/transactionContext';
 
 export default function Listagem() {
   const { data, updateSales, updateBuys } = useFinance();
   const transactionDatabase = useTransactionSupabase()
-  const [balances, setBalances] = useState<GraphicProps[]>([])
-  const [income, setIncome] = useState(0)
   const [totalPriceBuy, setTotalPriceBuy] = useState(0)
   const [totalPriceSale, setTotalPriceSale] = useState(0)
-  const [totalBalance, setTotalBalance] = useState(0)
   const [dataTransaction, setDataTransaction] = useState<IDataTransaction[]>([])
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
@@ -67,7 +63,6 @@ export default function Listagem() {
     loadBalance()
     setTotalPriceBuy(data.buys)
     setTotalPriceSale(data.sales)
-    setTotalBalance(data.balance)
   }, [])
 
   return (

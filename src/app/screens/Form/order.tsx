@@ -4,9 +4,7 @@ import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from "react-native-dropdown-select-list";
 import { IOrder } from "@/src/constants/interface";
-import { useOrderDatabase } from "@/src/database/useOrderDatabase";
 import { useOrderSupabase } from "@/src/database/useOrderSupabase";
-import { useProductDatabase } from "@/src/database/useProductDatabase";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 
 type OrderProps = {
@@ -34,9 +32,7 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
   const [address, setAddress] = useState('')
   const [obs, setObs] = useState('')
   const [totPedido, setTotPedido] = useState(0)
-  // const productDatabase = useProductDatabase()
   const productDatabase = useProductSupabase()
-  // const orderDatabase = useOrderDatabase()
   const orderDatabase = useOrderSupabase()
 
   async function listProducts() {
@@ -132,7 +128,7 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
         <View className="items-center w-full h-10 mb-4">
           <Text className="text-lg font-bold text-orange-950">CADASTRO DE ENCOMENDAS</Text>
         </View>
-
+        
         <Input 
           placeholder="Cliente"
           keyboardType="default"

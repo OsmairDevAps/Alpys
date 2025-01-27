@@ -5,11 +5,10 @@ import FrmOrder from "../screens/Form/order";
 import Header from "@/src/components/Header";
 import { IOrder } from "@/src/constants/interface";
 import { CardOrder } from "@/src/components/Card/order";
-import { useOrderDatabase } from "@/src/database/useOrderDatabase";
 import { useOrderSupabase } from "@/src/database/useOrderSupabase";
+import HeaderScreen from "@/src/components/HeaderScreen";
 
 export default function Order() {
-  // const orderDatabase = useOrderDatabase()
   const orderDatabase = useOrderSupabase()
   const [order, setOrder] = useState<IOrder>()
   const [nullOrder, setNullOrder] = useState<IOrder>()
@@ -50,13 +49,7 @@ export default function Order() {
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
       
-      <View className="flex flex-row justify-between items-center w-full px-4 h-10 mb-4">
-        <Text className="text-xl font-bold">ENCOMENDAS</Text>
-        <TouchableOpacity onPress={openModal} className="flex flex-row justify-between items-center gap-2 bg-orange-500 p-1">
-          <Feather name="plus-square" size={24} color="#ffffff" />
-          <Text className="text-white">Nova</Text>
-        </TouchableOpacity>
-      </View>
+      <HeaderScreen titleScreen="ENCOMENDAS" titleButton="Nova" onPress={openModal} />
 
       <FlatList 
         style={{width: '100%'}}

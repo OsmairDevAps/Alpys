@@ -59,8 +59,13 @@ export function useSaleSupabase() {
   
   async function searchById(id: number) {
     try {
-      const { data } = await supabase.from('transactions').select('*').eq('id', id)
-      return data
+      const { data, error } = await supabase.from('transactions').select('*').eq('id', id)
+      if (error) {
+        console.log(error)
+      }
+      if (data) {
+        return data[0]
+      }
     } catch (error) {
       throw error
     }

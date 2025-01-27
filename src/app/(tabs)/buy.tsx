@@ -4,12 +4,11 @@ import { Feather } from '@expo/vector-icons'
 import Header from '@/src/components/Header';
 import FrmBuy from '../screens/Form/buy';
 import { ITBuy } from '@/src/constants/interface';
-import { useBuyDatabase } from '@/src/database/useBuyDatabase';
 import { CardBuy } from '@/src/components/Card/buy';
 import { useBuySupabase } from '@/src/database/useBuySupabase';
+import HeaderScreen from '@/src/components/HeaderScreen';
 
 export default function Buy() {
-  // const buyDatabase = useBuyDatabase()
   const buyDatabase = useBuySupabase()
   const [nullBuy, setNullBuy] = useState<ITBuy>()
   const [buy, setBuy] = useState<ITBuy>()
@@ -55,13 +54,7 @@ export default function Buy() {
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
 
-      <View className="flex flex-row justify-between items-center w-full px-4 h-10 mb-4">
-        <Text className="text-xl font-bold">COMPRAS</Text>
-        <TouchableOpacity onPress={openModal} className="flex flex-row justify-between items-center gap-2 bg-orange-500 p-1">
-          <Feather name="plus-square" size={24} color="#ffffff" />
-          <Text className="text-white">Nova</Text>
-        </TouchableOpacity>
-      </View>
+      <HeaderScreen titleScreen='COMPRAS' titleButton='Nova' onPress={openModal} />
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}

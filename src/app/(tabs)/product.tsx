@@ -7,6 +7,7 @@ import Header from "@/src/components/Header";
 import { Feather } from "@expo/vector-icons";
 import { IProduct } from "@/src/constants/interface";
 import { CardProduct } from "@/src/components/Card/product";
+import HeaderScreen from "@/src/components/HeaderScreen";
 
 export default function Product() {
   const productDatabase = useProductSupabase()
@@ -53,14 +54,7 @@ export default function Product() {
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
-
-      <View className="flex flex-row justify-between items-center w-full px-4 h-10 mb-4">
-        <Text className="text-xl font-bold">PRODUTOS</Text>
-        <TouchableOpacity onPress={openModal} className="flex flex-row justify-between items-center gap-2 bg-orange-500 p-1">
-          <Feather name="plus-square" size={24} color="#ffffff" />
-          <Text className="text-white">Novo</Text>
-        </TouchableOpacity>
-      </View>
+      <HeaderScreen titleScreen="PRODUTOS" titleButton="Novo" onPress={openModal} />
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}

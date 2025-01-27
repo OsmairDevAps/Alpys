@@ -1,5 +1,4 @@
 import { Text, View, FlatList, Modal } from 'react-native';
-import { router } from 'expo-router'
 import useFinance from '@/src/app/contexts/transactionContext';
 import Header from '@/src/components/Header';
 import ItemList from '@/src/components/ItemList';
@@ -26,7 +25,7 @@ export default function Listagem() {
   }
 
   if(isLoading) {
-    return <Text>Carregando...</Text>
+    return <Text className='p-2 w-full text-center'>Carregando...</Text>
   }
 
   return (
@@ -91,7 +90,7 @@ export default function Listagem() {
       }}>
         <ViewSale 
           closeModal={setIsModalSaleOpen} 
-          id={idBuy}
+          id={idSale}
         />
       </Modal>
     </View>

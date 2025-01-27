@@ -18,7 +18,7 @@ export default function ViewSale({closeModal, id}:SaleProps) {
       if(id) {
         const response = await saleDatabase.searchById(id)
         if(response) {
-          setSale(response[0])
+          setSale(response)
         }
       }
     } catch (error) {

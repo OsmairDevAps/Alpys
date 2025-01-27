@@ -7,6 +7,7 @@ import { CardSale } from "@/src/components/Card/sale";
 import { ITSale } from "@/src/constants/interface";
 import { useSaleDatabase } from "@/src/database/useSaleDatabase";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
+import HeaderScreen from "@/src/components/HeaderScreen";
 
 export default function Sales() {
   // const saleDatabase = useSaleDatabase()
@@ -54,14 +55,7 @@ export default function Sales() {
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
-
-      <View className="flex flex-row justify-between items-center w-full px-4 h-10 mb-4">
-        <Text className="text-xl font-bold">VENDAS</Text>
-        <TouchableOpacity onPress={openModal} className="flex flex-row justify-between items-center gap-2 bg-orange-500 p-1">
-          <Feather name="plus-square" size={24} color="#ffffff" />
-          <Text className="text-white">Nova</Text>
-        </TouchableOpacity>
-      </View>
+      <HeaderScreen titleScreen="VENDAS" titleButton="Nova" onPress={openModal} />
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}

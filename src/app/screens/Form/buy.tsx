@@ -23,7 +23,6 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
   const [productName, setProductName] = useState('')
   const [amount, setAmount] = useState('')
   const [price, setPrice] = useState('')
-  const [isPaid, setIsPaid] = useState(false)
 
   async function handleSave() {
     const today = new Date();

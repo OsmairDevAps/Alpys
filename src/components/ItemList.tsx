@@ -9,6 +9,8 @@ interface Props {
 
 export default function ItemList({ item, onPress }: Props) {
   const [styleModality, setStyleModality] = useState('w-1/2')
+  const [stylePayment, setStylePayment] = useState('w-1/4 text-center font-semibold')
+  const [statusPay, setStatusPay] = useState('')
   const dateString = String(item.created_at);
   const validDateString = dateString.replace(' ', 'T').slice(0, 23); // Ajusta para '2025-01-07T16:39:30.743'
   const date = new Date(validDateString);
@@ -23,6 +25,13 @@ export default function ItemList({ item, onPress }: Props) {
       setStyleModality('w-1/2 text-red-800')
     } else {
       setStyleModality('w-1/2 text-green-800')
+      if(item.ispaid) {
+        setStatusPay('Pago')
+        setStylePayment('w-1/4 text-center font-semibold text-blue-700')
+      } else {
+        setStatusPay('Não Pago')
+        setStylePayment('w-1/4 text-center font-semibold text-red-700')
+      }
     }
   }
 
@@ -44,7 +53,8 @@ export default function ItemList({ item, onPress }: Props) {
       
       <View className='flex flex-row justify-between items-center'>
         <Text className={styleModality}>{item.modality === 'buy' ? 'Compra' : 'Venda'}</Text>
-        <Text className='w-1/2 text-right'>{formattedDate}</Text>
+        <Text className={stylePayment}>{statusPay}</Text>
+        <Text className='w-1/4 text-right'>{formattedDate}</Text>
       </View>
 
     </View>

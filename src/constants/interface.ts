@@ -71,6 +71,7 @@ export interface IDataTransaction {
   price: number;
   amount: number;
   modality: string;
+  ispaid: boolean;
   created_at: Date;
   datetransaction: string;
 }

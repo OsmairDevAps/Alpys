@@ -31,6 +31,8 @@ export interface IOrder {
   deliveryfee: number;
   address: string;
   obs: string;
+  order_data: Date;
+  delivered: boolean;
 }
 export interface ITransaction {
   id: number;

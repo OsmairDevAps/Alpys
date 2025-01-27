@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Text, View, Modal, TouchableOpacity, FlatList } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { View, Modal, FlatList } from "react-native";
 import FrmOrder from "../screens/Form/order";
 import Header from "@/src/components/Header";
 import { IOrder } from "@/src/constants/interface";
@@ -55,7 +54,7 @@ export default function Order() {
         style={{width: '100%'}}
         data={orders}
         keyExtractor={item => String(item.id)}
-        contentContainerStyle={{ gap: 16 }}
+        contentContainerStyle={{ gap: 12 }}
         renderItem={({ item }) => 
           <CardOrder 
             item={item}

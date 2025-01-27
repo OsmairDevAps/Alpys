@@ -1,6 +1,4 @@
 import { Stack } from 'expo-router';
-import { SQLiteProvider } from 'expo-sqlite'
-import { initializeDatabase } from '../database/initializeDatabase';
 import { FinanceProvider } from './contexts/transactionContext';
 import '../styles/global.css'
 

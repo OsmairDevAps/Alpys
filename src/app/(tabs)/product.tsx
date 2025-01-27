@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
-import { Text, View, Modal, FlatList, TouchableOpacity } from "react-native";
-import { useProductDatabase } from "@/src/database/useProductDatabase";
+import { View, Modal, FlatList } from "react-native";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import FrmProduct from "../screens/Form/product";
 import Header from "@/src/components/Header";
-import { Feather } from "@expo/vector-icons";
 import { IProduct } from "@/src/constants/interface";
 import { CardProduct } from "@/src/components/Card/product";
 import HeaderScreen from "@/src/components/HeaderScreen";
 
 export default function Product() {
   const productDatabase = useProductSupabase()
-  // const productDatabase = useProductDatabase()
   const [product, seProduct] = useState<IProduct>()
   const [nullProduct, seNullProduct] = useState<IProduct>()
   const [products, seProducts] = useState<IProduct[]>([])

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Text, View, Switch, KeyboardAvoidingView, Platform, Keyboard, Modal, TouchableOpacity } from "react-native";
+import { DateTime } from "luxon";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from "react-native-dropdown-select-list";
 import { IOrder } from "@/src/constants/interface";
 import { useOrderSupabase } from "@/src/database/useOrderSupabase";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
+import { convertDateStringToDate } from "@/src/util/functions";
 
 type OrderProps = {
   closeModal: (value: boolean) => void;
@@ -31,6 +33,8 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
   const [deliveryFee, setDeliveryFee] = useState('')
   const [address, setAddress] = useState('')
   const [obs, setObs] = useState('')
+  const [orderData, setOrderData] = useState('')
+  const [delivered, setDelivered] = useState(false)
   const [totPedido, setTotPedido] = useState(0)
   const productDatabase = useProductSupabase()
   const orderDatabase = useOrderSupabase()
@@ -57,6 +61,9 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
   }
 
   async function handleSave() {
+    // converter dd/mm/yyyy
+    // para YYYY-MM-DD HH:mm:ss+ZZ
+    const dateFormatted = convertDateStringToDate(orderData)
     try {
       await orderDatabase.create({
         client_name: clientName, 
@@ -66,7 +73,9 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
         isdelivery: isDelivery, 
         deliveryfee: Number(deliveryFee), 
         address: address, 
-        obs: obs  
+        obs: obs,
+        order_data: dateFormatted,
+        delivered: delivered 
       })
       setAmount('')
       setPrice(0)
@@ -139,7 +148,14 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
         <SelectList
           placeholder='Produto'
           inputStyles={{ color: '#431407'}}
-          boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
+          boxStyles={{ 
+            width: '100%', 
+            backgroundColor: '#fdf7e5', 
+            borderColor: '#f97316', 
+            borderWidth: 1, 
+            marginBottom: 8, 
+            marginTop: 8 
+          }}
           dropdownStyles={{ backgroundColor: '#fdf7e5' }}
           defaultOption={defaultValue}
           setSelected={(val: string) => setProductName(val)}
@@ -190,7 +206,10 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
         <View className="flex flex-row justify-start items-center w-full h-12 gap-2">
           <Text>Valor total:</Text>
           <Text>{price}</Text>
-          <TouchableOpacity className="ml-10 px-4 py-1 border-[1px] border-orange-200 rounded-lg bg-orange-100" onPress={SetValuePrice}>
+          <TouchableOpacity 
+            className="ml-10 px-4 py-1 border-[1px] border-orange-200 rounded-lg bg-orange-100" 
+            onPress={SetValuePrice}
+          >
             <Text>Atualizar Valor</Text>
           </TouchableOpacity>
         </View>
@@ -202,19 +221,16 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
             .format(totPedido)}
         </Text>
 
+        <Input 
+          placeholder="Data de entrega"
+          keyboardType="numbers-and-punctuation"
+          onChangeText={setOrderData}
+          value={orderData}
+        />
+
         <Button title="Salvar" onPress={handleSave} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
       </View>
-
-      {/* <Modal
-        transparent={true}
-        animationType='slide'
-        visible={isModalClientOpen}
-        onRequestClose={() => {
-           setIsModalClientOpen(!isModalClientOpen)
-      }}>
-        <FrmClient closeModal={setIsModalClientOpen} listSelect={listClients()} />
-      </Modal> */}
       
     </KeyboardAvoidingView>
     )

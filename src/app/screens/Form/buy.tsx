@@ -2,11 +2,11 @@ import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { useState, useEffect } from "react";
 import { Text, View, KeyboardAvoidingView, Platform, Alert } from "react-native";
-import { LKind } from "@/src/constants/db";
 import { SelectList } from "react-native-dropdown-select-list";
 import { useBuySupabase } from "@/src/database/useBuySupabase";
-import { ITBuy } from "@/src/constants/interface";
+import { ISelectProps, ITBuy } from "@/src/constants/interface";
 import useFinance from "@/src/app/contexts/transactionContext";
+import { useProductTypeSupabase } from "@/src/database/useProductTypeSupabase";
 
 type BuyProps = {
   closeModal: (value: boolean) => void;
@@ -15,8 +15,10 @@ type BuyProps = {
 }
 
 export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
+  const useProductTypeDatabase = useProductTypeSupabase()
   const { updateBuys } = useFinance()
   const buyDatabase = useBuySupabase()
+  const [productTypes, setProductTypes] = useState<ISelectProps[]>([])
   const [id, setId] = useState('')
   const [place, setPlace] = useState('')
   const [kind, setKind] = useState('')
@@ -70,11 +72,22 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
     }
   }
 
+  async function loadProductTypes() {
+    const response = await useProductTypeDatabase.list()
+    if (response) {
+      let newArray: ISelectProps[] = response.map(item => {
+        return { key: String(item.id), value: String(item.kind) }
+      })
+      setProductTypes(newArray)
+    }
+  }
+
   function handleClose() {
     closeModal(false)
   }
 
   useEffect(() => {
+    loadProductTypes()
     if(buy) {
       setId(String(buy.id))
       setPlace(buy.place)
@@ -108,8 +121,8 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
           boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
           dropdownStyles={{ backgroundColor: '#fdf7e5' }}
           setSelected={(val: string) => setKind(val)}
-          data={LKind}
-          save="key"
+          data={productTypes}
+          save="value"
         />
 
         <Input 

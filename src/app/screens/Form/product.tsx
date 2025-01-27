@@ -3,7 +3,6 @@ import Input from "@/src/components/Input";
 import { useState, useEffect } from "react";
 import { SelectList } from 'react-native-dropdown-select-list';
 import { Text, View, KeyboardAvoidingView, Platform, Alert, Modal } from "react-native";
-import { useProductDatabase } from "@/src/database/useProductDatabase";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { useCategorySupabase } from "@/src/database/useCategorySupabase";
 import { ICategory, IProduct, ISelectProps } from "@/src/constants/interface";
@@ -16,7 +15,6 @@ type Props = {
 }
 
 export default function FrmProduct({ closeModal, listProducts, product }:Props) {
-  //const productDatabase = useProductDatabase()
   const categoryDatabase = useCategorySupabase()
   const productDatabase = useProductSupabase()
   const [isModalCategoryOpen, setIsModalCategoryOpen] = useState(false)

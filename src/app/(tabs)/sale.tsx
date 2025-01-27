@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
-import { Text, View, Modal, FlatList, TouchableOpacity, Alert } from "react-native";
+import { View, Modal, FlatList, Alert } from "react-native";
 import Header from "@/src/components/Header";
-import { Feather } from "@expo/vector-icons";
 import FrmSale from "../screens/Form/sale";
 import { CardSale } from "@/src/components/Card/sale";
 import { ITSale } from "@/src/constants/interface";
-import { useSaleDatabase } from "@/src/database/useSaleDatabase";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
 import HeaderScreen from "@/src/components/HeaderScreen";
 
 export default function Sales() {
-  // const saleDatabase = useSaleDatabase()
   const saleDatabase = useSaleSupabase()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [sales, setSales] = useState<ITSale[]>([])

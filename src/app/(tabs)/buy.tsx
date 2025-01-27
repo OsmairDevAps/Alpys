@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Text, View, FlatList, TouchableOpacity, Modal, Alert } from "react-native";
-import { Feather } from '@expo/vector-icons'
+import { View, FlatList, Modal, Alert } from "react-native";
 import Header from '@/src/components/Header';
 import FrmBuy from '../screens/Form/buy';
 import { ITBuy } from '@/src/constants/interface';

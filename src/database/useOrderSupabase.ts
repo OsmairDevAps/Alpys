@@ -15,7 +15,9 @@ export function useOrderSupabase() {
         isdelivery: data.isdelivery, 
         deliveryfee: data.deliveryfee, 
         address: data.address, 
-        obs: data.obs  
+        obs: data.obs,
+        order_data: data.order_data,
+        delivered: data.delivered
       })
       return { insertedRow }
     } catch (error) {
@@ -35,7 +37,9 @@ export function useOrderSupabase() {
         isdelivery: data.isdelivery, 
         deliveryfee: data.deliveryfee, 
         address: data.address, 
-        obs: data.obs  
+        obs: data.obs,
+        order_data: data.order_data,
+        delivered: data.delivered
       })
       .eq('id', data.id)
     } catch (error) {

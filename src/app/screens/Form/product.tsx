@@ -1,12 +1,14 @@
+import { Text, View, KeyboardAvoidingView, Platform, Alert, Modal, ScrollView } from "react-native";
+import { useForm } from "react-hook-form";
 import Button from "@/src/components/Button";
-import Input from "@/src/components/Input";
+import Input from "@/src/components/Form/Input";
 import { useState, useEffect } from "react";
 import { SelectList } from 'react-native-dropdown-select-list';
-import { Text, View, KeyboardAvoidingView, Platform, Alert, Modal } from "react-native";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { useCategorySupabase } from "@/src/database/useCategorySupabase";
 import { ICategory, IProduct, ISelectProps } from "@/src/constants/interface";
 import FrmCategory from "./category";
+import Select from "@/src/components/Form/Select";
 
 type Props = {
   closeModal: (value: boolean) => void;
@@ -15,23 +17,20 @@ type Props = {
 }
 
 export default function FrmProduct({ closeModal, listProducts, product }:Props) {
+  const { handleSubmit, control, reset, formState:{errors} } = useForm()
   const categoryDatabase = useCategorySupabase()
   const productDatabase = useProductSupabase()
   const [isModalCategoryOpen, setIsModalCategoryOpen] = useState(false)
   const [selectCategories, setSelectCategories] = useState<ISelectProps[]>([{} as ISelectProps])
   const [categories, setCategories] = useState<ICategory[]>([])
   const [id, setId] = useState('')
-  const [category, setCategory] = useState('')
-  const [name, setName] = useState('')
-  const [price, setPrice] = useState('')
-  const [photo, setPhoto] = useState('sem foto')
 
   async function listCategories() {
     try {
       const response = await categoryDatabase.list()
       if(response) {
         let newArray: ISelectProps[] = response.map(cat => {
-          return { key: String(cat.id), value: String(cat.category) }
+          return { value: String(cat.category), label: String(cat.category) }
         })
         setSelectCategories(newArray)
       }
@@ -51,25 +50,26 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
     }
   }
 
-  async function handleSave() {
+  async function handleSave(data: any) {
     try {
       if (id) {
         await productDatabase.update({
           id: Number(id), 
-          category,
-          name, 
-          price: Number(price), 
-          photo
+          category: data.category,
+          name: data.name, 
+          price: Number(data.price), 
+          photo: data.photo
         })
         Alert.alert('Produto atualizado com sucesso!')
       } else {
-        await productDatabase.create({category, name, price: Number(price), photo})
+        await productDatabase.create({
+          category: data.category, 
+          name: data.name, 
+          price: Number(data.price), 
+          photo: data.photo
+        })
         Alert.alert('Produto incluído com sucesso!')
       }
-      setId('')
-      setName('')
-      setPrice('0.00')
-      setPhoto('sem foto')
       await listProducts
       closeModal(false)
     } catch (error) {
@@ -98,28 +98,30 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className='flex flex-1 items-center justify-start bg-orange-950 px-4 mt-28'>
+       <ScrollView contentContainerStyle={{ 
+          flexGrow: 1, 
+          alignItems: "center", 
+          backgroundColor: '#fff7f1', 
+          paddingHorizontal: 16, 
+          marginTop: 96 
+        }}>
         <View className="flex flex-row justify-between items-center w-full h-10 mb-4">
           <Text className="text-lg font-bold text-orange-50">CADASTRO DE PRODUTOS</Text>
         </View>
 
         <View className="flex flex-row items-center gap-2">
           <View className="flex-1">
-            <SelectList
-              placeholder='Categoria'
-              inputStyles={{ color: '#431407'}}
-              boxStyles={{ 
-                width: '100%', 
-                backgroundColor: '#fdf7e5', 
-                borderColor: '#f97316', 
-                borderWidth: 1, 
-                marginBottom: 8, 
-                marginTop: 8 
+            <Select 
+              error={errors.category?.message}
+              arrayList={selectCategories}
+              formProps={{
+                control,
+                name: 'category',
+                defaultValue: '',
+                rules: {
+                  required: 'É necessário informar a Categoria.'
+                }
               }}
-              dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-              setSelected={(val: string) => setCategory(val)}
-              data={selectCategories}
-              save="value"
             />
           </View>
           <View className="w-32">
@@ -128,29 +130,47 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
         </View>
 
         <Input 
-          placeholder="Nome do Produto"
-          keyboardType="default"
-          onChangeText={setName}
-          value={name}
+          error={errors.name?.message}
+          formProps={{
+            control,
+            name: 'name',
+            rules: {
+              required: 'É necessário informar o Produto'
+            }
+          }}
+          inputProps={{
+            placeholder: "Nome do Produto"            
+          }}
         />
 
         <Input 
-          placeholder="Preço"
-          keyboardType="numeric"
-          onChangeText={setPrice}
-          value={price}
+          error={errors.price?.message}
+          formProps={{
+            control,
+            name: 'price',
+            rules: {
+              required: 'É necessário informar o Valor'
+            }
+          }}
+          inputProps={{
+            placeholder: "Valor",
+            keyboardType: 'numeric'
+          }}
         />
 
         <Input 
-          placeholder="Imagem/Foto"
-          keyboardType="default"
-          onChangeText={setPhoto}
-          value={photo}
+          formProps={{
+            control,
+            name: 'photo',
+          }}
+          inputProps={{
+            placeholder: "Imagem do produto"
+          }}
         />
 
-        <Button title="Salvar" onPress={handleSave} />
+        <Button title="Salvar" onPress={handleSubmit(handleSave)} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
-      </View>
+      </ScrollView>
 
       <Modal
         transparent={true}

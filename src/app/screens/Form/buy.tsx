@@ -1,12 +1,13 @@
-import Button from "@/src/components/Button";
-import Input from "@/src/components/Input";
 import { useState, useEffect } from "react";
-import { Text, View, KeyboardAvoidingView, Platform, Alert } from "react-native";
-import { SelectList } from "react-native-dropdown-select-list";
-import { useBuySupabase } from "@/src/database/useBuySupabase";
-import { ISelectProps, ITBuy } from "@/src/constants/interface";
+import { Text, View, KeyboardAvoidingView, Platform, Alert, ScrollView } from "react-native";
+import { useForm } from 'react-hook-form'
 import useFinance from "@/src/app/contexts/transactionContext";
+import { useBuySupabase } from "@/src/database/useBuySupabase";
 import { useProductTypeSupabase } from "@/src/database/useProductTypeSupabase";
+import { ISelectProps, ITBuy } from "@/src/constants/interface";
+import Button from "@/src/components/Button";
+import Input from "@/src/components/Form/Input";
+import Select from "@/src/components/Form/Select";
 
 type BuyProps = {
   closeModal: (value: boolean) => void;
@@ -15,18 +16,14 @@ type BuyProps = {
 }
 
 export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
+  const { handleSubmit, control, reset, formState:{ errors } } = useForm()
   const useProductTypeDatabase = useProductTypeSupabase()
   const { updateBuys } = useFinance()
   const buyDatabase = useBuySupabase()
   const [productTypes, setProductTypes] = useState<ISelectProps[]>([])
   const [id, setId] = useState('')
-  const [place, setPlace] = useState('')
-  const [kind, setKind] = useState('')
-  const [productName, setProductName] = useState('')
-  const [amount, setAmount] = useState('')
-  const [price, setPrice] = useState('')
 
-  async function handleSave() {
+  async function handleSave(data: ITBuy) {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
     const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -37,11 +34,11 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
         await buyDatabase.update({
           id: Number(id),
           modality: 'buy',
-          place: place, 
-          kind: kind, 
-          product_name: productName, 
-          amount: Number(amount), 
-          price: Number(price), 
+          place: data.place, 
+          kind: data.kind, 
+          product_name: data.product_name, 
+          amount: Number(data.amount), 
+          price: Number(data.price), 
           datetransaction: formattedDate,
           ispaid: true  
         })
@@ -49,22 +46,18 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
       }else {
         await buyDatabase.create({
           modality: 'buy',
-          place: place, 
-          kind: kind, 
-          product_name: productName, 
-          amount: Number(amount), 
-          price: Number(price), 
+          place: data.place, 
+          kind: data.kind, 
+          product_name: data.product_name, 
+          amount: Number(data.amount), 
+          price: Number(data.price), 
           datetransaction: formattedDate,
           ispaid: true  
         })
-        updateBuys(Number(price))
+        updateBuys(Number(data.price))
         Alert.alert('Compra incluída com sucesso!')
       }
-      setPlace('')
-      setKind('')
-      setProductName('')
-      setAmount('')
-      setPrice('')
+      reset()
       await listBuy
       closeModal(false)
     } catch (error) {
@@ -76,7 +69,7 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
     const response = await useProductTypeDatabase.list()
     if (response) {
       let newArray: ISelectProps[] = response.map(item => {
-        return { key: String(item.id), value: String(item.kind) }
+        return { value: String(item.kind), label: String(item.kind) }
       })
       setProductTypes(newArray)
     }
@@ -103,52 +96,92 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className='flex flex-1 items-center justify-start bg-orange-50 px-4 mt-28'>
+      <ScrollView contentContainerStyle={{ 
+          flexGrow: 1, 
+          alignItems: "center", 
+          backgroundColor: '#fff7f1', 
+          paddingHorizontal: 16, 
+          marginTop: 96 
+        }}>
         <View className="flex flex-row justify-between items-center w-full h-10 mb-4">
           <Text className="text-lg font-bold text-orange-950">CADASTRO DE COMPRAS</Text>
         </View>
 
         <Input 
-          placeholder="Local da compra"
-          keyboardType="default"
-          onChangeText={setPlace}
-          value={place}
+          error={errors.place?.message}
+          formProps={{
+            control,
+            name: 'place',
+            rules: {
+              required: 'Local da Compra é necessário.'
+            }
+          }}
+          inputProps={{
+            placeholder: "Local da compra"            
+          }}
         />
-
-        <SelectList
-          placeholder='Tipo de Produto'
-          inputStyles={{ color: '#431407'}}
-          boxStyles={{ width: '100%', backgroundColor: '#fdf7e5', borderColor: '#f97316', borderWidth: 1, marginBottom: 8, marginTop: 8 }}
-          dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-          setSelected={(val: string) => setKind(val)}
-          data={productTypes}
-          save="value"
-        />
-
-        <Input 
-          placeholder="Produto"
-          keyboardType="default"
-          onChangeText={setProductName}
-          value={productName}
-        />
-
-        <Input 
-          placeholder="Quantidade"
-          keyboardType="numeric"
-          onChangeText={setAmount}
-          value={amount}
+        
+        <Select 
+          error={errors.kind?.message}
+          arrayList={productTypes}
+          formProps={{
+            control,
+            name: 'kind',
+            defaultValue: '',
+            rules: {
+              required: 'O Tipo do Produto é necessário.'
+            }
+          }}
         />
 
         <Input 
-          placeholder="Valor"
-          keyboardType="numeric"
-          onChangeText={setPrice}
-          value={price}
+          error={errors.product_name?.message}
+          formProps={{
+            control,
+            name: 'product_name',
+            rules: {
+              required: 'É necessário informar o Produto'
+            }
+          }}
+          inputProps={{
+            placeholder: "Produto"            
+          }}
         />
 
-        <Button title="Salvar" onPress={handleSave} />
+        <Input 
+          error={errors.amount?.message}
+          formProps={{
+            control,
+            name: 'amount',
+            rules: {
+              required: 'É necessário informar a Quantidade'
+            }
+          }}
+          inputProps={{
+            placeholder: "Quantidade",
+            keyboardType: 'numeric'
+          }}
+        />
+
+        <Input 
+          error={errors.price?.message}
+          formProps={{
+            control,
+            name: 'price',
+            rules: {
+              required: 'É necessário informar o Valor'
+            }
+          }}
+          inputProps={{
+            placeholder: "Valor",
+            keyboardType: 'numeric'
+          }}
+        />
+
+        <Button title="Salvar" onPress={handleSubmit(handleSave)} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
-      </View>
+      
+      </ScrollView>
     </KeyboardAvoidingView>
     )
 }

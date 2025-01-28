@@ -1,6 +1,6 @@
 export interface ISelectProps {
-  key: string;
   value: string;
+  label: string;
 }
 export interface GraphicProps {
   modality: string;

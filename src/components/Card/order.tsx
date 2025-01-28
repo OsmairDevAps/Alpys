@@ -27,12 +27,7 @@ export function CardOrder({item, onDelete, onUpdate, ...rest}: Props) {
         <View className="flex flex-row gap-2">
           <Text className="text-lg font-bold">Data de entrega:</Text>
           <Text className="text-lg">
-            {Intl.DateTimeFormat(
-              'pt-BR', {
-                day: "2-digit",
-                month: '2-digit',
-                year: 'numeric'
-              }).format(item.order_data)}
+            {new Date(item.order_data).toLocaleDateString('pt-BR')}
           </Text>
         </View>
       </TouchableOpacity>
@@ -44,7 +39,7 @@ export function CardOrder({item, onDelete, onUpdate, ...rest}: Props) {
       <TouchableOpacity onPress={onDelete}>
         <Feather name="trash-2" size={24} />
       </TouchableOpacity>
-
+      
     </View>
   )
 }

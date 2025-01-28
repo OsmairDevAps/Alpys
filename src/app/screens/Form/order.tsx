@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Text, View, Switch, KeyboardAvoidingView, Platform, Keyboard, Modal, TouchableOpacity } from "react-native";
-import { DateTime } from "luxon";
+import { Text, View, Switch, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from "react-native";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { SelectList } from "react-native-dropdown-select-list";
@@ -61,8 +60,6 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
   }
 
   async function handleSave() {
-    // converter dd/mm/yyyy
-    // para YYYY-MM-DD HH:mm:ss+ZZ
     const dateFormatted = convertDateStringToDate(orderData)
     try {
       await orderDatabase.create({
@@ -133,7 +130,13 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className='flex-1 items-center justify-start bg-orange-50 px-4 mt-28'>
+      <ScrollView contentContainerStyle={{ 
+        flexGrow: 1, 
+        alignItems: "center", 
+        backgroundColor: '#fff7f1', 
+        paddingHorizontal: 16, 
+        marginTop: 96 
+      }}>
         <View className="items-center w-full h-10 mb-4">
           <Text className="text-lg font-bold text-orange-950">CADASTRO DE ENCOMENDAS</Text>
         </View>
@@ -170,7 +173,7 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
           value={amount}
         />
 
-        <View className="flex flex-row w-full gap-4 justify-normal items-center h-16">
+        <View className="flex flex-row w-full gap-4 justify-normal items-center bg-red-300">
           <Text className="text-orange-950">Para entrega?</Text>
           <Switch
             trackColor={{false: '#767577', true: '#dde6f5'}}
@@ -203,7 +206,7 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
           value={obs}
         />
 
-        <View className="flex flex-row justify-start items-center w-full h-12 gap-2">
+        <View className="flex flex-row justify-start items-center w-full gap-2">
           <Text>Valor total:</Text>
           <Text>{price}</Text>
           <TouchableOpacity 
@@ -230,7 +233,7 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
 
         <Button title="Salvar" onPress={handleSave} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
-      </View>
+      </ScrollView>
       
     </KeyboardAvoidingView>
     )

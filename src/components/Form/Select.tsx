@@ -1,9 +1,9 @@
-import { forwardRef } from "react";
 import { View, Text } from "react-native";
 import { Controller, UseControllerProps } from "react-hook-form";
 import { Picker } from '@react-native-picker/picker'
 
 type SelectProps = {
+  key: string;
   label: string;
   value: string;
 }
@@ -32,7 +32,7 @@ const Select = ({ formProps, arrayList, error }: Props) => {
               />
               {arrayList.map(item => (
                 <Picker.Item 
-                  key={item.value}
+                  key={item.key}
                   label={item.label} 
                   value={item.value} 
                 />

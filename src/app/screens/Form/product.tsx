@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Form/Input";
 import { useState, useEffect } from "react";
-import { SelectList } from 'react-native-dropdown-select-list';
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { useCategorySupabase } from "@/src/database/useCategorySupabase";
 import { ICategory, IProduct, ISelectProps } from "@/src/constants/interface";
@@ -17,22 +16,25 @@ type Props = {
 }
 
 export default function FrmProduct({ closeModal, listProducts, product }:Props) {
-  const { handleSubmit, control, reset, formState:{errors} } = useForm()
+  const { handleSubmit, control, reset, formState:{errors}, getValues } = useForm()
   const categoryDatabase = useCategorySupabase()
   const productDatabase = useProductSupabase()
   const [isModalCategoryOpen, setIsModalCategoryOpen] = useState(false)
+  let categoryLoaded:ISelectProps = {} as ISelectProps
+  const [userData, setUserData] = useState<{ name: string; category: string } | null>(null);
   const [selectCategories, setSelectCategories] = useState<ISelectProps[]>([{} as ISelectProps])
-  const [categories, setCategories] = useState<ICategory[]>([])
   const [id, setId] = useState('')
 
-  async function listCategories() {
+  async function loadCategory(category: string) {
     try {
-      const response = await categoryDatabase.list()
-      if(response) {
-        let newArray: ISelectProps[] = response.map(cat => {
-          return { value: String(cat.category), label: String(cat.category) }
-        })
-        setSelectCategories(newArray)
+      const response = await categoryDatabase.searchByName(category)
+      if (response) {
+        categoryLoaded = {
+          key: response[0].id,
+          value: response[0].category,
+          label: response[0].category
+        }
+        reset(categoryLoaded)
       }
     } catch (error) {
       console.log(error)
@@ -43,7 +45,10 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
     try {
       const response = await categoryDatabase.list()
       if(response) {
-        setCategories(response)
+        let newArray: ISelectProps[] = response.map(cat => {
+          return { key: String(cat.id) ,value: String(cat.category), label: String(cat.category) }
+        })
+        setSelectCategories(newArray)
       }
     } catch (error) {
       console.log(error)
@@ -69,6 +74,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           photo: data.photo
         })
         Alert.alert('Produto incluído com sucesso!')
+        reset()
       }
       await listProducts
       closeModal(false)
@@ -82,14 +88,10 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
   }
 
   useEffect(() => {
-    listCategories()
     loadCategories()
     if(product) {
       setId(String(product.id))
-      setCategory(product.category)
-      setName(product.name)
-      setPrice(String(product.price.toFixed(2)))
-      setPhoto(product.photo)
+      loadCategory(product.category)
     }
   }, [])
 
@@ -106,9 +108,8 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           marginTop: 96 
         }}>
         <View className="flex flex-row justify-between items-center w-full h-10 mb-4">
-          <Text className="text-lg font-bold text-orange-50">CADASTRO DE PRODUTOS</Text>
+          <Text className="text-lg font-bold text-orange-950">CADASTRO DE PRODUTOS [{categoryLoaded.label}]</Text>
         </View>
-
         <View className="flex flex-row items-center gap-2">
           <View className="flex-1">
             <Select 
@@ -117,7 +118,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
               formProps={{
                 control,
                 name: 'category',
-                defaultValue: '',
+                defaultValue: categoryLoaded,
                 rules: {
                   required: 'É necessário informar a Categoria.'
                 }
@@ -134,6 +135,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           formProps={{
             control,
             name: 'name',
+            defaultValue: product?.name,
             rules: {
               required: 'É necessário informar o Produto'
             }
@@ -148,6 +150,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           formProps={{
             control,
             name: 'price',
+            defaultValue: String(product?.price),
             rules: {
               required: 'É necessário informar o Valor'
             }
@@ -162,6 +165,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           formProps={{
             control,
             name: 'photo',
+            defaultValue: product?.photo,
           }}
           inputProps={{
             placeholder: "Imagem do produto"

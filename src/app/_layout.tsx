@@ -3,6 +3,7 @@ import { FinanceProvider } from './contexts/transactionContext';
 import '../styles/global.css'
 
 export default function RootLayout() {
+  
   return (
     <FinanceProvider>
       <Stack>

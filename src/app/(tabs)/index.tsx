@@ -7,7 +7,7 @@ import ViewBuy from '../screens/view/buy';
 import ViewSale from '../screens/view/sale';
 
 export default function Listagem() {
-  const { data, dataTransaction, isLoading } = useFinance();
+  const { data, dataTransaction } = useFinance();
   const [idBuy, setIdBuy] = useState(0)
   const [idSale, setIdSale] = useState(0)
   const [isModalBuyOpen, setIsModalBuyOpen] = useState(false)
@@ -24,14 +24,10 @@ export default function Listagem() {
     }
   }
 
-  if(isLoading) {
-    return <Text className='p-2 w-full text-center'>Carregando...</Text>
-  }
-
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
-      
+     
       <View className='flex flex-row w-full h-48'>
         <View className='flex justify-between items-center bg-white  p-4 gap-2 border-[1px] border-orange-300'>
           <Text className={(data.balance) > 0 ? 'text-xl font-bold text-green-700' : 'text-xl font-bold text-red-700'}>SALDO</Text>

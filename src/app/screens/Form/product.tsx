@@ -8,6 +8,7 @@ import { useCategorySupabase } from "@/src/database/useCategorySupabase";
 import { ICategory, IProduct, ISelectProps } from "@/src/constants/interface";
 import FrmCategory from "./category";
 import Select from "@/src/components/Form/Select";
+import SelectInput from "@/src/components/Form/SelectInput";
 
 type Props = {
   closeModal: (value: boolean) => void;
@@ -112,7 +113,15 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
         </View>
         <View className="flex flex-row items-center gap-2">
           <View className="flex-1">
-            <Select 
+            <SelectInput 
+              control={control}
+              name="category"
+              label="Gênero"
+              options={selectCategories}
+              rules={{ required: 'É necessário informar a Categoria.' }}
+              error={errors.category}
+            />
+            {/* <Select 
               error={errors.category?.message}
               arrayList={selectCategories}
               formProps={{
@@ -123,7 +132,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
                   required: 'É necessário informar a Categoria.'
                 }
               }}
-            />
+            /> */}
           </View>
           <View className="w-32">
             <Button title="+ Categoria" onPress={() => setIsModalCategoryOpen(true)} />

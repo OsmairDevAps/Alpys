@@ -1,6 +1,6 @@
 import Button from "@/src/components/Button";
 import { useState, useEffect } from "react";
-import { Text, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { ITSale } from "@/src/constants/interface";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
 
@@ -21,6 +21,25 @@ export default function ViewSale({closeModal, id}:SaleProps) {
           setSale(response)
         }
       }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function payTransaction(sale: ITSale) {
+    try {
+      await saleDatabase.update({
+        id: sale.id,
+        product_name: sale.product_name, 
+        client_name: sale.client_name, 
+        modality: sale.modality,
+        amount: sale.amount, 
+        price: sale.price, 
+        datetransaction: sale.datetransaction, 
+        ispaid: !sale.ispaid
+      })
+      Alert.alert('Venda atualizada com sucesso!')
+      loadSale()
     } catch (error) {
       console.log(error)
     }
@@ -67,6 +86,11 @@ export default function ViewSale({closeModal, id}:SaleProps) {
         <View className="flex flex-row items-center p-2 gap-2">
           <Text className="text-lg font-bold">Venda paga?</Text>
           <Text className="text-lg font-semibold">{sale?.ispaid === true ? 'Sim' : 'Não'}</Text>
+          {sale?.ispaid === false && 
+            <TouchableOpacity onPress={()=> payTransaction(sale)} className='w-20 h-10 bg-orange-300 p-2 justify-center items-center'>
+              <Text className='text-white font-semibold'>Pagar</Text>
+            </TouchableOpacity>
+          }
         </View>
 
         <Button title="Fechar" type="Close" onPress={handleClose} />

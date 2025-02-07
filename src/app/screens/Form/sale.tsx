@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Switch, Text, View, KeyboardAvoidingView, Platform, Alert, TouchableOpacity } from "react-native";
+import { useForm } from "react-hook-form";
 import Button from "@/src/components/Button";
-import Input from "@/src/components/Input";
+import Input from "@/src/components/Form/Input";
+import Select from "@/src/components/Form/Select";
 import { SelectList } from 'react-native-dropdown-select-list';
 import { ITSale } from "@/src/constants/interface";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
-import useFinance from "@/src/app/contexts/transactionContext";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
@@ -14,21 +15,19 @@ type SaleProps = {
   sale?: ITSale;
 }
 type SelectProductProps = {
-  key: string;
+  key: number;
+  label: string;
   value: string;
-  price: number;
+  price: string;
 }
+type FormValues = Omit<ITSale, 'id'>
 
 export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
-  const { updateSales } = useFinance();
+  const { handleSubmit, reset, control, setValue, getValues, formState:{ errors } } = useForm<FormValues>({})
   const productDatabase = useProductSupabase()
   const saleDatabase = useSaleSupabase()
-  const [selectProducts, setSelectProducts] = useState<SelectProductProps[]>([{ key: '', value: '', price: 0 }])
-  const [id, setId] = useState('')
-  const [productName, setProductName] = useState('')
-  const [clientName, setClientName] = useState('')
-  const [amount, setAmount] = useState('')
-  const [price, setPrice] = useState(0)
+  const [selectProducts, setSelectProducts] = useState<SelectProductProps[]>([])
+  const [totalPrice, setTotalPrice] = useState('')
   const [isPaid, setIsPaid] = useState(false)
   
   async function listProducts() {
@@ -36,7 +35,7 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
       const response = await productDatabase.list()
       if(response) {
         let newArray: SelectProductProps[] = response.map(pro => {
-          return { key: String(pro.id), value: String(pro.category) +' - '+ String(pro.name), price: pro.price }
+          return { key: pro.id, value: String(pro.category) +' - '+ String(pro.name), label: String(pro.category) +' - '+ String(pro.name), price: pro.price }
         })
         setSelectProducts(newArray)
       }
@@ -45,7 +44,7 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
     }
   }
 
-  async function handleSave() {
+  async function handleSave(data: FormValues) {
     updatePrice()
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
@@ -53,14 +52,14 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
     const year = today.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
     try {
-      if (id) {
+      if (sale) {
         saleDatabase.update({
-          id: Number(id),
+          id: Number(sale.id),
           modality: 'sale',
-          client_name: clientName,
-          product_name: productName,
-          amount: Number(amount),
-          price: Number(price),
+          client_name: sale.client_name,
+          product_name: sale.product_name,
+          amount: data.amount,
+          price: totalPrice,
           datetransaction: formattedDate,
           ispaid: isPaid
         })
@@ -68,21 +67,16 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
       } else {
         saleDatabase.create({
           modality: 'sale',
-          client_name: clientName,
-          product_name: productName,
-          amount: Number(amount),
-          price: Number(price),
+          client_name: data.client_name,
+          product_name: data.product_name,
+          amount: data.amount,
+          price: totalPrice,
           datetransaction: formattedDate,
           ispaid: isPaid
         })
-        updateSales(Number(price));
         Alert.alert('Venda incluída com sucesso!')
       }
-      setId('')
-      setProductName('')
-      setClientName('')
-      setAmount('')
-      setPrice(0)
+      reset()
       setIsPaid(false)
       closeModal(false)
       } catch (error) {
@@ -92,17 +86,18 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
   }
   
   function updatePrice() {
-    if (productName !== '' ) {
-      const prod = selectProducts.find(sp => String(sp.value) === String(productName))
-      let value
+    const currentValues = getValues();
+    const name_product = currentValues.product_name
+    const amount_product = currentValues.amount
+    if (name_product !== '' ) {
+      const prod = selectProducts.find(sp => String(sp.value) === String(name_product))
       let total=0
       if (prod) {
-        value = prod.price
+        if(Number(amount_product) > 0) {
+          total = total + (Number(prod.price) * Number(amount_product))
+        }
+        setTotalPrice(String(total))
       }        
-      if(Number(amount) > 0) {
-        total = total + (Number(value) * Number(amount))
-      }
-      setPrice(total)
     }
   }
 
@@ -113,11 +108,10 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
   useEffect(() => {
     listProducts()
     if(sale) {
-      setId(String(sale.id))
-      setProductName(sale.product_name)
-      setClientName(sale.client_name)
-      setAmount(String(sale.amount))
-      setPrice(sale.price)
+      setValue('product_name', sale.product_name)
+      setValue('client_name', sale.client_name)
+      setValue('amount', String(sale.amount))
+      setValue('price', String(sale.price))
       setIsPaid(sale.ispaid)
     }
   },[])
@@ -131,41 +125,58 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
         <View className="flex flex-row justify-between items-center w-full h-10 mb-4">
           <Text className="text-lg font-bold text-orange-950">LANÇAMENTO DE VENDAS</Text>
         </View>
-
+        {!sale ?
+          <View className="w-full">
+            <Input 
+              error={errors.client_name?.message?.toString()}
+              control={control}
+              formProps={{
+                name: 'client_name',
+                rules: {
+                  required: 'O nome do Cliente é necessário.'
+                }
+              }}
+              inputProps={{
+                placeholder: "Nome do Cliente"            
+              }}
+            />
+            <Select 
+              error={errors.product_name?.message?.toString()}
+              arrayList={selectProducts}
+              control={control}
+              formProps={{
+                name: 'product_name',
+                defaultValue: '',
+                rules: {
+                  required: 'O Produto é necessário.'
+                }
+              }}
+            />
+          </View> :
+          <View className="flex flex-col w-full justify-start items-start gap-2 mb-2">
+            <Text>Cliente: {sale.client_name}</Text>
+            <Text>Produto: {sale.product_name}</Text>
+          </View>
+        }
+        
         <Input 
-          placeholder="Cliente"
-          keyboardType="default"
-          onChangeText={setClientName}
-          value={clientName}
-        />
-
-        <SelectList
-          placeholder='Produto'
-          inputStyles={{ color: '#431407'}}
-          boxStyles={{ 
-            width: '100%', 
-            backgroundColor: '#fdf7e5', 
-            borderColor: '#f97316', 
-            borderWidth: 1, 
-            marginBottom: 8, 
-            marginTop: 8 
+          error={errors.amount?.message?.toString()}
+          control={control}
+          formProps={{
+            name: 'amount',
+            rules: {
+              required: 'A quantidade é necessária.'
+            }
           }}
-          dropdownStyles={{ backgroundColor: '#fdf7e5' }}
-          setSelected={(val: string) => setProductName(val)}
-          data={selectProducts}
-          save="value"
-        />
- 
-        <Input 
-          placeholder="Quantidade"
-          keyboardType="numeric"
-          onChangeText={setAmount}
-          value={amount}
+          inputProps={{
+            placeholder: "Quantidade",
+            keyboardType: 'numeric'
+          }}
         />
   
         <View className="flex flex-row justify-start items-center w-full h-12 gap-2">
           <Text>Valor total:</Text>
-          <Text>{price}</Text>
+          <Text>{totalPrice}</Text>
           <TouchableOpacity 
             className="ml-10 px-4 py-1 border-[1px] border-orange-200 rounded-lg bg-orange-100" 
             onPress={updatePrice}
@@ -186,7 +197,7 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
           <Text className="text-orange-950">{isPaid ? 'Sim' : 'Não'}</Text>
         </View>
 
-        <Button title="Salvar" onPress={handleSave} />
+        <Button title="Salvar" onPress={handleSubmit(handleSave)} />
         <Button title="Fechar" type="Close" onPress={handleClose} />
       </View>
 

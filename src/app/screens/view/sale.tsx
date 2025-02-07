@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { ITSale } from "@/src/constants/interface";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
+import useFinance from "../../contexts/transactionContext";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
@@ -10,6 +11,7 @@ type SaleProps = {
 }
 
 export default function ViewSale({closeModal, id}:SaleProps) {
+  const { loadData } = useFinance()
   const saleDatabase = useSaleSupabase()
   const [sale, setSale] = useState<ITSale>()
 
@@ -38,8 +40,9 @@ export default function ViewSale({closeModal, id}:SaleProps) {
         datetransaction: sale.datetransaction, 
         ispaid: !sale.ispaid
       })
-      Alert.alert('Venda atualizada com sucesso!')
       loadSale()
+      loadData()
+      Alert.alert('Venda atualizada com sucesso!')
     } catch (error) {
       console.log(error)
     }

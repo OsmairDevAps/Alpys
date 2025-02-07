@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Text, View, KeyboardAvoidingView, Platform, Alert, ScrollView } from "react-native";
 import { useForm } from 'react-hook-form'
-import useFinance from "@/src/app/contexts/transactionContext";
 import { useBuySupabase } from "@/src/database/useBuySupabase";
 import { useProductTypeSupabase } from "@/src/database/useProductTypeSupabase";
 import { ISelectProps, ITBuy } from "@/src/constants/interface";
@@ -14,47 +13,46 @@ type BuyProps = {
   listBuy?: Promise<void>;
   buy?: ITBuy;
 }
+type FormValues = Omit<ITBuy, 'id'>
 
 export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
-  const { handleSubmit, control, reset, formState:{ errors } } = useForm()
+  const { handleSubmit, control, reset, formState:{ errors }, setValue } = useForm<FormValues>({})
   const useProductTypeDatabase = useProductTypeSupabase()
-  const { updateBuys } = useFinance()
   const buyDatabase = useBuySupabase()
   const [productTypes, setProductTypes] = useState<ISelectProps[]>([])
   const [id, setId] = useState('')
 
-  async function handleSave(data: ITBuy) {
+  async function handleSave(data: FormValues) {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const year = today.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
     try {
-      if(id) {
+      if(buy) {
         await buyDatabase.update({
-          id: Number(id),
+          id: buy.id,
           modality: 'buy',
-          place: data.place, 
-          kind: data.kind, 
-          product_name: data.product_name, 
-          amount: Number(data.amount), 
-          price: Number(data.price), 
+          place: buy.place, 
+          kind: buy.kind, 
+          product_name: buy.product_name, 
+          amount: data.amount, 
+          price: data.price, 
           datetransaction: formattedDate,
           ispaid: true  
         })
         Alert.alert('Compra atualizada com sucesso!')
-      }else {
+      } else {
         await buyDatabase.create({
           modality: 'buy',
           place: data.place, 
           kind: data.kind, 
           product_name: data.product_name, 
-          amount: Number(data.amount), 
-          price: Number(data.price), 
+          amount: data.amount, 
+          price: data.price, 
           datetransaction: formattedDate,
           ispaid: true  
         })
-        updateBuys(Number(data.price))
         Alert.alert('Compra incluída com sucesso!')
       }
       reset()
@@ -68,7 +66,7 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
   async function loadProductTypes() {
     const response = await useProductTypeDatabase.list()
     if (response) {
-      let newArray: ISelectProps[] = response.map(item => {
+      let newArray = response.map(item => {
         return { value: String(item.kind), label: String(item.kind) }
       })
       setProductTypes(newArray)
@@ -83,11 +81,14 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
     loadProductTypes()
     if(buy) {
       setId(String(buy.id))
-      setPlace(buy.place)
-      setKind(buy.kind)
-      setProductName(buy.product_name)
-      setAmount(String(buy.amount))
-      setPrice(String(buy.price))
+      setValue('modality', buy.modality)
+      setValue('place', buy.place)
+      setValue('kind', buy.kind)
+      setValue('product_name', buy.product_name)
+      setValue('amount', String(buy.amount))
+      setValue('price', String(buy.price))
+      setValue('datetransaction', buy.datetransaction)
+      setValue('ispaid', buy.ispaid)
     }
   },[])
 
@@ -107,51 +108,70 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
           <Text className="text-lg font-bold text-orange-950">CADASTRO DE COMPRAS</Text>
         </View>
 
-        <Input 
-          error={errors.place?.message}
-          formProps={{
-            control,
-            name: 'place',
-            rules: {
-              required: 'Local da Compra é necessário.'
-            }
-          }}
-          inputProps={{
-            placeholder: "Local da compra"            
-          }}
-        />
-        
-        <Select 
-          error={errors.kind?.message}
-          arrayList={productTypes}
-          formProps={{
-            control,
-            name: 'kind',
-            defaultValue: '',
-            rules: {
-              required: 'O Tipo do Produto é necessário.'
-            }
-          }}
-        />
+        {!buy ?
+          <View className="w-full">
+            <Input 
+              error={errors.place?.message?.toString()}
+              control={control}
+              formProps={{
+                name: 'place',
+                rules: {
+                  required: 'Local da Compra é necessário.'
+                }
+              }}
+              inputProps={{
+                placeholder: "Local da compra"            
+              }}
+            />
+            
+            <Select 
+              error={errors.kind?.message?.toString()}
+              arrayList={productTypes}
+              control={control}
+              formProps={{
+                name: 'kind',
+                defaultValue: '',
+                rules: {
+                  required: 'O Tipo do Produto é necessário.'
+                }
+              }}
+            />
+
+            <Input 
+              error={errors.product_name?.message?.toString()}
+              control={control}
+              formProps={{
+                name: 'product_name',
+                rules: {
+                  required: 'É necessário informar o Produto'
+                }
+              }}
+              inputProps={{
+                placeholder: "Produto"            
+              }}
+            />
+          </View>
+        : 
+          <View className="flex flex-col w-full gap-2 mb-4">
+            <View className="flex flex-row gap-2 w-full">
+              <Text className="font-semibold">Local da compra:</Text>
+              <Text>{buy.place}</Text>
+            </View>
+            <View className="flex flex-row gap-2 w-full">
+              <Text className="font-semibold">Tipo de produto:</Text>
+              <Text>{buy.kind}</Text>
+            </View>
+            <View className="flex flex-row gap-2 w-full">
+              <Text className="font-semibold">Produto:</Text>
+              <Text>{buy.product_name}</Text>
+            </View>
+          </View>
+        }
 
         <Input 
-          error={errors.product_name?.message}
+          error={errors.amount?.message?.toString()}
+          control={control}
           formProps={{
-            control,
-            name: 'product_name',
-            rules: {
-              required: 'É necessário informar o Produto'
-            }
-          }}
-          inputProps={{
-            placeholder: "Produto"            
-          }}
-        />
-
-        <Input 
-          error={errors.amount?.message}
-          formProps={{
-            control,
             name: 'amount',
             rules: {
               required: 'É necessário informar a Quantidade'
@@ -164,9 +184,9 @@ export default function FrmBuy({closeModal, listBuy, buy}:BuyProps) {
         />
 
         <Input 
-          error={errors.price?.message}
+          error={errors.price?.message?.toString()}
+          control={control}
           formProps={{
-            control,
             name: 'price',
             rules: {
               required: 'É necessário informar o Valor'

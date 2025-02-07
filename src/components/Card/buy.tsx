@@ -1,17 +1,17 @@
 import { ITBuy } from "@/src/constants/interface";
 import { Feather } from "@expo/vector-icons";
-import { Text, TouchableOpacity, TouchableOpacityProps, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
-type Props = TouchableOpacityProps & {
+type Props = {
   item: ITBuy;
   onDelete: () => void;
   onUpdate: () => void;
 }
 
-export function CardBuy({item, onDelete, onUpdate, ...rest}: Props) {
+export function CardBuy({ item, onDelete, onUpdate }: Props) {
   return (
     <View className="flex flex-row justify-between items-center">
-      <TouchableOpacity className="w-80 border-dotted border-orange-50 border-[1px]" {...rest}>
+      <View className="w-80 border-dotted border-orange-50 border-[1px]">
           <View className="flex flex-row gap-2">
             <Text className="text-lg font-bold">Local da compra:</Text>
             <Text className="text-lg">{item.place}</Text>
@@ -41,7 +41,7 @@ export function CardBuy({item, onDelete, onUpdate, ...rest}: Props) {
             <Text className="text-lg font-bold">Data:</Text>
             <Text className="text-lg">{item.datetransaction}</Text>
           </View>
-      </TouchableOpacity>
+      </View>
 
       <TouchableOpacity onPress={onUpdate}>
         <Feather name="edit-2" size={24} />

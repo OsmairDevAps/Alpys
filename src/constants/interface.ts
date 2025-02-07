@@ -1,5 +1,5 @@
 export interface ISelectProps {
-  key: string;
+  // key: string;
   value: string;
   label: string;
 }
@@ -15,7 +15,7 @@ export interface IProduct {
   id: number;
   category: string;
   name: string;
-  price: number;
+  price: string;
   photo: string;
 }
 export interface IClient {
@@ -53,8 +53,8 @@ export interface ITBuy {
   place: string;
   kind: string;
   product_name: string;
-  amount: number;
-  price: number;
+  amount: string;
+  price: string;
   datetransaction: string;
   ispaid: boolean;
 }
@@ -63,8 +63,8 @@ export interface ITSale {
   product_name: string;
   client_name: string;
   modality: string;
-  amount: number;
-  price: number;
+  amount: string;
+  price: string;
   datetransaction: string;
   ispaid: boolean;
 }

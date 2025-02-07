@@ -1,19 +1,21 @@
 import { forwardRef } from "react";
 import { TextInput, View, TextInputProps, Text } from "react-native";
-import { Controller, UseControllerProps } from "react-hook-form";
+import { Controller, Control, FieldError, UseControllerProps } from "react-hook-form";
 import { Feather } from "@expo/vector-icons";
 import clsx from "clsx";
 
 type Props = {
   icon?: keyof typeof Feather.glyphMap;
+  control: Control<any>;
   formProps: UseControllerProps;
   inputProps: TextInputProps;
-  error?: string;
+  error?: string | undefined;
 }
 
-const Input = forwardRef<TextInput, Props> (({ icon, formProps, inputProps, error='' }:Props, ref) => {
+const Input = forwardRef<TextInput, Props> (({ icon, formProps, control, inputProps, error='' }:Props, ref) => {
   return (
     <Controller 
+      control={control}
       render = {({ field }) => (
         <View className="w-full mb-4">
           <View className="flex-row items-center text-orange-950 bg-orange-50 border-[1px] border-orange-500 rounded-lg">

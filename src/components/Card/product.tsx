@@ -1,6 +1,6 @@
 import { IProduct } from "@/src/constants/interface";
 import { Feather } from "@expo/vector-icons";
-import { Text, TouchableOpacity, TouchableOpacityProps, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   item: IProduct;
@@ -19,7 +19,7 @@ export function CardProduct({item, onDelete, onUpdate}: Props) {
         </View>
         <View className="flex flex-row gap-2">
           <Text className="text-lg font-bold">Produto:</Text>
-          <Text className="text-lg">{item.name}</Text>
+          <Text className="text-lg w-60">{item.name}</Text>
         </View>
         <View className="flex flex-row gap-2">
           <Text className="text-lg font-bold">Valor:</Text>

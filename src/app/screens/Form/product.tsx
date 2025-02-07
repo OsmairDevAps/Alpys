@@ -5,10 +5,9 @@ import Input from "@/src/components/Form/Input";
 import { useState, useEffect } from "react";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { useCategorySupabase } from "@/src/database/useCategorySupabase";
-import { ICategory, IProduct, ISelectProps } from "@/src/constants/interface";
+import { IProduct, ISelectProps } from "@/src/constants/interface";
 import FrmCategory from "./category";
 import Select from "@/src/components/Form/Select";
-import SelectInput from "@/src/components/Form/SelectInput";
 
 type Props = {
   closeModal: (value: boolean) => void;
@@ -17,37 +16,19 @@ type Props = {
 }
 
 export default function FrmProduct({ closeModal, listProducts, product }:Props) {
-  const { handleSubmit, control, reset, formState:{errors}, getValues } = useForm()
+  const { handleSubmit, control, reset, formState:{errors}, setValue } = useForm<IProduct>({})
   const categoryDatabase = useCategorySupabase()
   const productDatabase = useProductSupabase()
   const [isModalCategoryOpen, setIsModalCategoryOpen] = useState(false)
-  let categoryLoaded:ISelectProps = {} as ISelectProps
-  const [userData, setUserData] = useState<{ name: string; category: string } | null>(null);
   const [selectCategories, setSelectCategories] = useState<ISelectProps[]>([{} as ISelectProps])
   const [id, setId] = useState('')
-
-  async function loadCategory(category: string) {
-    try {
-      const response = await categoryDatabase.searchByName(category)
-      if (response) {
-        categoryLoaded = {
-          key: response[0].id,
-          value: response[0].category,
-          label: response[0].category
-        }
-        reset(categoryLoaded)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
   async function loadCategories() {
     try {
       const response = await categoryDatabase.list()
       if(response) {
         let newArray: ISelectProps[] = response.map(cat => {
-          return { key: String(cat.id) ,value: String(cat.category), label: String(cat.category) }
+          return { value: String(cat.category), label: String(cat.category) }
         })
         setSelectCategories(newArray)
       }
@@ -58,12 +39,12 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
 
   async function handleSave(data: any) {
     try {
-      if (id) {
+      if (product) {
         await productDatabase.update({
           id: Number(id), 
-          category: data.category,
+          category: product.category,
           name: data.name, 
-          price: Number(data.price), 
+          price: data.price, 
           photo: data.photo
         })
         Alert.alert('Produto atualizado com sucesso!')
@@ -71,7 +52,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
         await productDatabase.create({
           category: data.category, 
           name: data.name, 
-          price: Number(data.price), 
+          price: data.price, 
           photo: data.photo
         })
         Alert.alert('Produto incluído com sucesso!')
@@ -92,7 +73,8 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
     loadCategories()
     if(product) {
       setId(String(product.id))
-      loadCategory(product.category)
+      setValue('category', product.category)
+      setValue('price', String(product.price))
     }
   }, [])
 
@@ -109,40 +91,41 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           marginTop: 96 
         }}>
         <View className="flex flex-row justify-between items-center w-full h-10 mb-4">
-          <Text className="text-lg font-bold text-orange-950">CADASTRO DE PRODUTOS [{categoryLoaded.label}]</Text>
+          <Text className="text-lg font-bold text-orange-950">CADASTRO DE PRODUTOS</Text>
         </View>
-        <View className="flex flex-row items-center gap-2">
-          <View className="flex-1">
-            <SelectInput 
-              control={control}
-              name="category"
-              label="Gênero"
-              options={selectCategories}
-              rules={{ required: 'É necessário informar a Categoria.' }}
-              error={errors.category}
-            />
-            {/* <Select 
-              error={errors.category?.message}
-              arrayList={selectCategories}
-              formProps={{
-                control,
-                name: 'category',
-                defaultValue: categoryLoaded,
-                rules: {
-                  required: 'É necessário informar a Categoria.'
-                }
-              }}
-            /> */}
+        
+        {!product ? 
+          <View className="flex flex-row w-full justify-center items-center gap-2">
+            <View className="flex-1">
+              <Select 
+                error={errors.category?.message?.toString()}
+                control={control}
+                arrayList={selectCategories}
+                formProps={{
+                  name: 'category',
+                  defaultValue: '',
+                  rules: {
+                    required: 'É necessário informar a Categoria.'
+                  }
+                }}
+              />
+            </View>
+            <View className="w-32">
+              <Button title="+ Categoria" onPress={() => setIsModalCategoryOpen(true)} />
+            </View>
           </View>
-          <View className="w-32">
-            <Button title="+ Categoria" onPress={() => setIsModalCategoryOpen(true)} />
+        :
+          <View className="flex flex-col w-full gap-2 mb-4">
+            <View className="flex flex-row gap-2">
+              <Text className="font-semibold">Categoria:</Text>
+              <Text>{product.category}</Text>
+            </View>
           </View>
-        </View>
-
+        }
         <Input 
-          error={errors.name?.message}
+          error={errors.name?.message?.toString()}
+          control={control}
           formProps={{
-            control,
             name: 'name',
             defaultValue: product?.name,
             rules: {
@@ -155,11 +138,11 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
         />
 
         <Input 
-          error={errors.price?.message}
+          error={errors.price?.message?.toString()}
+          control={control}
           formProps={{
-            control,
             name: 'price',
-            defaultValue: String(product?.price),
+            defaultValue: product?.price,
             rules: {
               required: 'É necessário informar o Valor'
             }
@@ -171,8 +154,8 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
         />
 
         <Input 
+          control={control}
           formProps={{
-            control,
             name: 'photo',
             defaultValue: product?.photo,
           }}

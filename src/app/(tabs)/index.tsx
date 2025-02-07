@@ -1,13 +1,14 @@
-import { Text, View, FlatList, Modal } from 'react-native';
+import { Text, View, FlatList, Modal, ActivityIndicator } from 'react-native';
 import useFinance from '@/src/app/contexts/transactionContext';
 import Header from '@/src/components/Header';
 import ItemList from '@/src/components/ItemList';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import ViewBuy from '../screens/view/buy';
 import ViewSale from '../screens/view/sale';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Listagem() {
-  const { data, dataTransaction } = useFinance();
+  const { data, loadData, dataTransaction, isLoading } = useFinance();
   const [idBuy, setIdBuy] = useState(0)
   const [idSale, setIdSale] = useState(0)
   const [isModalBuyOpen, setIsModalBuyOpen] = useState(false)
@@ -24,10 +25,20 @@ export default function Listagem() {
     }
   }
 
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [])
+  );
+
+  if (isLoading) {
+    return <ActivityIndicator size="large" color="#e08700" />;
+  }
+
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
-     
+      
       <View className='flex flex-row w-full h-48'>
         <View className='flex justify-between items-center bg-white  p-4 gap-2 border-[1px] border-orange-300'>
           <Text className={(data.balance) > 0 ? 'text-xl font-bold text-green-700' : 'text-xl font-bold text-red-700'}>SALDO</Text>

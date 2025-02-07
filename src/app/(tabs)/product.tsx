@@ -61,8 +61,8 @@ export default function Product() {
         renderItem={({ item }) => 
           <CardProduct 
             item={item} 
-            onDelete={() => handleDelete(item.id)} 
             onUpdate={() => handleUpdate(item)}
+            onDelete={() => handleDelete(item.id)} 
           />
         }
       />

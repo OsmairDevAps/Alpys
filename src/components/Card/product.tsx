@@ -27,7 +27,7 @@ export function CardProduct({item, onDelete, onUpdate}: Props) {
             {Intl.NumberFormat(
               'pt-BR', 
               {style: 'currency', currency: 'BRL'}
-              ).format(item.price)}
+              ).format(Number(item.price))}
           </Text>
         </View>
       </View>

@@ -34,7 +34,7 @@ export function CardBuy({ item, onDelete, onUpdate }: Props) {
               {Intl.NumberFormat(
                 'pt-BR', 
                 {style: 'currency', currency: 'BRL'}
-                ).format(item.price)}
+                ).format(Number(item.price))}
             </Text>
           </View>
           <View className="flex flex-row gap-2">
@@ -43,11 +43,11 @@ export function CardBuy({ item, onDelete, onUpdate }: Props) {
           </View>
       </View>
 
-      <TouchableOpacity onPress={onUpdate}>
+      <TouchableOpacity onPress={onUpdate} className="border-[1px] border-orange-300 p-2 rounded-lg">
         <Feather name="edit-2" size={24} />
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={onDelete}>
+      <TouchableOpacity onPress={onDelete} className="border-[1px] border-orange-300 p-2 rounded-lg">
         <Feather name="trash-2" size={24} />
       </TouchableOpacity>
 

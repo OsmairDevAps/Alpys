@@ -1,11 +1,12 @@
-import { Text, View, FlatList, Modal, ActivityIndicator } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Text, View, FlatList, Modal } from 'react-native';
 import useFinance from '@/src/app/contexts/transactionContext';
 import Header from '@/src/components/Header';
 import ItemList from '@/src/components/ItemList';
-import { useCallback, useState } from 'react';
 import ViewBuy from '../screens/view/buy';
 import ViewSale from '../screens/view/sale';
 import { useFocusEffect } from '@react-navigation/native';
+import LoadingLogo from '@/src/components/Loading';
 
 export default function Listagem() {
   const { data, loadData, dataTransaction, isLoading } = useFinance();
@@ -32,7 +33,12 @@ export default function Listagem() {
   );
 
   if (isLoading) {
-    return <ActivityIndicator size="large" color="#e08700" />;
+    return (
+      <View className='flex-1 justify-center items-center'>
+        <LoadingLogo />
+        <Text className='mt-2 text-orange-500'>Carregando...</Text>
+      </View>
+    )
   }
 
   return (

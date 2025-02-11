@@ -11,6 +11,19 @@ export function useTransactionSupabase() {
     }
   }
 
+  async function listTransactions() {
+    try {
+      const { data } = await supabase
+        .from('transactions')
+        .select('*')
+        .gte('datetransaction', '07/01/2025')
+        .lte('datetransaction', '24/01/2025')
+      return data
+    } catch (error) {
+      throw error
+    }
+  }
+
   async function listGraphic() {
     try {
       const { data } = await supabase.rpc('get_transactions_summary');

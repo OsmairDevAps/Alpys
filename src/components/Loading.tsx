@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { View, Image } from 'react-native';
+import { View, Image, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   withRepeat,
@@ -16,7 +16,7 @@ const LoadingLogo = () => {
 
   useEffect(() => {
     // progress.value = withRepeat(withTiming(1, { duration: 1500 }), -1, true);
-    progress.value = withRepeat(withTiming(1, { duration: 10000 }), -1, false, () => {}, ReduceMotion.Never);
+    progress.value = withRepeat(withTiming(1, { duration: 1000 }), -1, false, () => {}, ReduceMotion.Never);
   }, []);
 
   const animatedProps = useAnimatedProps(() => ({
@@ -24,9 +24,9 @@ const LoadingLogo = () => {
   }));
 
   return (
-    <View className='flex-1 justify-center items-center'>
+    <View className='flex justify-center items-center'>
       <View className='absolute justify-center items-center'>
-        <Image source={require('../assets/images/alpys.png')} className='w-20 h-20' />
+        <Image source={require('../assets/images/logotipo.png')} className='w-20 h-20' />
       </View>
 
       <Svg height="100" width="100" className='transform -rotate-90'>
@@ -35,7 +35,7 @@ const LoadingLogo = () => {
           cy="50"
           r="40"
           stroke="transparent"
-          strokeWidth="10"
+          strokeWidth="2.5"
           fill="none"
         />
         <AnimatedCircle
@@ -43,7 +43,7 @@ const LoadingLogo = () => {
           cy="50"
           r="40"
           stroke="#ff8800" // Cor da borda animada
-          strokeWidth="10"
+          strokeWidth="2.5"
           fill="none"
           strokeDasharray="188" // Circunferência do círculo
           animatedProps={animatedProps}

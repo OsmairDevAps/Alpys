@@ -1,5 +1,5 @@
 export interface ISelectProps {
-  // key: string;
+  // key?: number;
   value: string;
   label: string;
 }

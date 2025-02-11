@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, FlatList, Modal, Alert } from "react-native";
+import { View, FlatList, Modal, Alert, Text } from "react-native";
 import Header from '@/src/components/Header';
 import FrmBuy from '../screens/Form/buy';
 import { ITBuy } from '@/src/constants/interface';
@@ -54,7 +54,7 @@ export default function Buy() {
       <Header />
 
       <HeaderScreen titleScreen='COMPRAS' titleButton='Nova' onPress={openModal} />
-
+ 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
         data={buys}

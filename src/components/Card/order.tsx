@@ -18,7 +18,7 @@ export function CardOrder({item, onDelete, onUpdate, ...rest}: Props) {
         </View>
         <View className="flex flex-row gap-2">
           <Text className="text-lg font-bold">Produto:</Text>
-          <Text className="text-lg">{item.product_name}</Text>
+          <Text className="text-lg w-52">{item.product_name}</Text>
         </View>
         <View className="flex flex-row gap-2">
           <Text className="text-lg font-bold">Quantidade:</Text>

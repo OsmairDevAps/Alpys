@@ -61,7 +61,7 @@ export function useCategorySupabase() {
   async function findByName(category: string) {
     try {
       const { data } = await supabase.from('categories').select('*').eq('category', category)
-      return data
+      return data 
     } catch (error) {
       console.log(error)
     }

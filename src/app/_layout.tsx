@@ -6,7 +6,7 @@ export default function RootLayout() {
   
   return (
     <FinanceProvider>
-      <Stack>
+      <Stack screenOptions={{statusBarStyle:'light'}}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </FinanceProvider>

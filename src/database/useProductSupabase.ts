@@ -45,7 +45,7 @@ export function useProductSupabase() {
 
   async function list() {
     try {
-      const { data } = await supabase
+      const { data } = await supabase 
         .from('products')
         .select('*')
         .order('name', {ascending: true})

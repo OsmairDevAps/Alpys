@@ -8,7 +8,7 @@ import MaskInput, { Masks } from 'react-native-mask-input';
 import { IOrder } from "@/src/constants/interface";
 import { useOrderSupabase } from "@/src/database/useOrderSupabase";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
-import { convertDateStringToDate, convertDateToString, convertISOToFormattedString } from "@/src/util/functions";
+import { convertDateStringToDate, convertDateToString, convertISOToFormattedString, getSecondWord } from "@/src/util/functions";
 
 type OrderProps = {
   closeModal: (value: boolean) => void;
@@ -127,6 +127,8 @@ export default function FrmOrder({closeModal, listOrder, order}:OrderProps) {
         }
         setValuePrice(String(total))
       }        
+    } else {
+      Alert.alert('Não foi possível encontrar o produto, favor informar o protudo a ser incluido.')
     }
   }
 

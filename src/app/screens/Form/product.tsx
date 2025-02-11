@@ -20,7 +20,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
   const categoryDatabase = useCategorySupabase()
   const productDatabase = useProductSupabase()
   const [isModalCategoryOpen, setIsModalCategoryOpen] = useState(false)
-  const [selectCategories, setSelectCategories] = useState<ISelectProps[]>([{} as ISelectProps])
+  const [selectCategories, setSelectCategories] = useState<ISelectProps[]>([{ label: '', value: '' }])
   const [id, setId] = useState('')
 
   async function loadCategories() {
@@ -97,7 +97,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
         {!product ? 
           <View className="flex flex-row w-full justify-center items-center gap-2">
             <View className="flex-1">
-              <Select 
+            <Select 
                 error={errors.category?.message?.toString()}
                 control={control}
                 arrayList={selectCategories}

@@ -24,3 +24,11 @@ export const convertISOToFormattedString = (isoString: string): string => {
   // Retorna a data no formato dd/mm/yyyy
   return dateTime.toFormat("dd/MM/yyyy");
 };
+
+export function getSecondWord(text: string) {
+  // Divide o texto usando o caractere "-"
+  const parts = text.split(" - ");
+  
+  // Retorna a segunda parte se existir
+  return parts[1] || "";
+}

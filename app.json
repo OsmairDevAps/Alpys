@@ -21,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#F97316"
-      }
+      },
+      "package": "com.osmairdev.Alpys"
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +34,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "70a838b7-458b-412a-adeb-063dda44fcef"
+      }
     }
   }
 }

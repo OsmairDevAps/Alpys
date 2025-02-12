@@ -11,7 +11,7 @@ export default function ItemList({ item, onPress }: Props) {
   const [styleModality, setStyleModality] = useState('w-1/2')
   const [stylePayment, setStylePayment] = useState('w-1/4 text-center font-semibold')
   const [statusPay, setStatusPay] = useState('')
-  const dateString = String(item.created_at);
+  const dateString = String(item.datetransaction);
   const validDateString = dateString.replace(' ', 'T').slice(0, 23); // Ajusta para '2025-01-07T16:39:30.743'
   const date = new Date(validDateString);
   const formattedDate = Intl.DateTimeFormat('pt-BR', {

@@ -41,7 +41,6 @@ export default function ViewSale({closeModal, id}:SaleProps) {
         ispaid: !sale.ispaid
       })
       loadSale()
-      loadData()
       Alert.alert('Venda atualizada com sucesso!')
     } catch (error) {
       console.log(error)

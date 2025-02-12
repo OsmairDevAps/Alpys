@@ -1,6 +1,14 @@
 import { supabase } from "./supabase";
 
 export function useTransactionSupabase() {
+  async function listGraphic() {
+    try {
+      const { data } = await supabase.rpc('get_transactions_summary');
+      return data
+    } catch (error) {
+      throw error
+    }
+  }
 
   async function list() {
     try {
@@ -10,28 +18,33 @@ export function useTransactionSupabase() {
       throw error
     }
   }
-
-  async function listTransactions() {
+  
+  async function listResume(dtIni: string, dtFim: string) {
     try {
       const { data } = await supabase
-        .from('transactions')
+        .from('resumed_transactions')
         .select('*')
-        .gte('datetransaction', '07/01/2025')
-        .lte('datetransaction', '24/01/2025')
-      return data
-    } catch (error) {
-      throw error
-    }
-  }
-
-  async function listGraphic() {
-    try {
-      const { data } = await supabase.rpc('get_transactions_summary');
+        .gte('datetransaction', dtIni)
+        .lte('datetransaction', dtFim)
       return data
     } catch (error) {
       throw error
     }
   }
   
-  return { list, listGraphic }
+  async function listTransactions(dtIni: string, dtFim: string) {
+    try {
+      const { data } = await supabase
+        .from('formatted_transactions')
+        .select('*')
+        .gte('datetransaction', dtIni)
+        .lte('datetransaction', dtFim)
+        .order('datetransaction', { ascending: false });
+      return data
+    } catch (error) {
+      throw error
+    }
+  }
+  
+  return { listResume, listTransactions }
 }

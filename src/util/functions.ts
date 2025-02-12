@@ -32,3 +32,16 @@ export function getSecondWord(text: string) {
   // Retorna a segunda parte se existir
   return parts[1] || "";
 }
+
+export const convertDateFormat = (dateStr: string): string => {
+  // Converte a string "dd/MM/yyyy" para um objeto DateTime
+  const dateTime = DateTime.fromFormat(dateStr, "dd/MM/yyyy");
+
+  // Verifica se a conversão foi bem-sucedida
+  if (!dateTime.isValid) {
+    throw new Error("Formato de data inválido. Use dd/MM/yyyy.");
+  }
+
+  // Retorna no formato "yyyy-MM-dd"
+  return dateTime.toFormat("yyyy-MM-dd");
+};

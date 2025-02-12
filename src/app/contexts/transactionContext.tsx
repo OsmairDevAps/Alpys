@@ -1,52 +1,47 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import React, { createContext, useState, useContext, ReactNode } from "react";
 import { useTransactionSupabase } from "@/src/database/useTransactionSupabase";
 import { IDataTransaction } from "@/src/constants/interface";
 
 type FinanceData = {
-  sales: number;
-  buys: number;
-  balance: number;
+  datetransaction: string;
+  buy: number;
+  sale: number;
+};
+
+type DataResume = {
+  buy: number;
+  sale: number;
+  resume: number;
 };
 
 type FinanceContextType = {
-  data: FinanceData;
+  dataResume: DataResume;
   dataTransaction: IDataTransaction[];
-  updateSales: (value: number) => void;
-  updateBuys: (value: number) => void;
-  loadData: () => Promise<void>; // Disponibiliza a função loadData
+  loadData: (dtIni: string, dtFim: string) => Promise<void>;
   isLoading: boolean;
 };
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
 export const FinanceProvider = ({ children }: { children: ReactNode }) => {
-  const [data, setData] = useState<FinanceData>({ sales: 0, buys: 0, balance: 0 });
+  const [data, setData] = useState<FinanceData[]>([]);
+  const [dataResume, setDataResume] = useState<DataResume>({} as DataResume);
   const [dataTransaction, setDataTransaction] = useState<IDataTransaction[]>([]);
   const useTransactionDatabase = useTransactionSupabase();
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchFinanceData = async (): Promise<FinanceData> => {
-    const response = await useTransactionDatabase.listGraphic();
-    return {
-      sales: Number(response[0]?.sale || 0),
-      buys: Number(response[0]?.buy || 0),
-      balance: Number(response[0]?.sale || 0) - Number(response[0]?.buy || 0),
-    };
-  };
-
-  const fetchFinanceItems = async (): Promise<IDataTransaction[]> => {
-    return await useTransactionDatabase.list();
-  };
-
-  const loadData = async () => {
+  const loadData = async (dtIni: string, dtFim: string) => {
     setIsLoading(true);
     try {
-      const [financeData, financeTransaction] = await Promise.all([
-        fetchFinanceData(),
-        fetchFinanceItems(),
-      ]);
-      setData(financeData);
-      setDataTransaction(financeTransaction);
+      const financeData: FinanceData[] | null = await useTransactionDatabase.listResume(dtIni, dtFim)
+      const financeTransaction: IDataTransaction[] | null = await useTransactionDatabase.listTransactions(dtIni, dtFim)
+      if (financeData) {
+        const total_buy = financeData.reduce((sum, row) => sum + (row.buy ? Number(row.buy) : 0), 0);
+        const total_sale = financeData.reduce((sum, row) => sum + (row.sale ? Number(row.sale) : 0), 0);
+        const total_resume = Number(total_sale) - Number(total_buy)
+        setDataResume({buy: Number(total_buy), sale: Number(total_sale), resume: Number(total_resume)});
+      }
+      setDataTransaction(financeTransaction || [])
     } catch (error) {
       console.error("Erro ao carregar dados financeiros:", error);
     } finally {
@@ -54,28 +49,8 @@ export const FinanceProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const updateSales = (value: number) => {
-    setData((prev) => ({
-      ...prev,
-      sales: prev.sales + value,
-      balance: prev.balance + value,
-    }));
-  };
-
-  const updateBuys = (value: number) => {
-    setData((prev) => ({
-      ...prev,
-      buys: prev.buys + value,
-      balance: prev.balance - value,
-    }));
-  };
-
   return (
-    <FinanceContext.Provider value={{ data, dataTransaction, updateSales, updateBuys, loadData, isLoading }}>
+    <FinanceContext.Provider value={{ dataResume, dataTransaction, loadData, isLoading }}>
       {children}
     </FinanceContext.Provider>
   );

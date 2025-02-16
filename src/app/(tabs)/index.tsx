@@ -11,7 +11,7 @@ import LoadingLogo from '@/src/components/Loading';
 import { Feather } from '@expo/vector-icons';
 import Input from '@/src/components/Form/Input';
 import Button from '@/src/components/Button';
-import { convertDateFormat } from '@/src/util/functions';
+import { convertDateFormat, formatarData } from '@/src/util/functions';
 
 type FilterProps = {
   dateIni: string;
@@ -19,13 +19,20 @@ type FilterProps = {
 }
 
 export default function Listagem() {
+  const hoje = new Date();
+  const dataInicial = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  const dataFinal = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+  const dtI = formatarData(dataInicial)
+  const dtF = formatarData(dataFinal)
   const { dataResume, loadData, dataTransaction, isLoading } = useFinance();
-  const { handleSubmit, control } = useForm<FilterProps>({defaultValues:{
-    dateIni: '01/01/2025',
-    dateFim: '30/01/2025'
-  }})
-  const [dtIni, setDtIni] = useState('01/01/2025')
-  const [dtFim, setDtFim] = useState('30/01/2025')
+  const { handleSubmit, control } = useForm<FilterProps>({
+    defaultValues: {
+      dateIni: dtI,
+      dateFim: dtF
+    }
+  })
+  const [dtIni, setDtIni] = useState(dtI)
+  const [dtFim, setDtFim] = useState(dtF)
   const [idBuy, setIdBuy] = useState(0)
   const [idSale, setIdSale] = useState(0)
   const [isModalBuyOpen, setIsModalBuyOpen] = useState(false)
@@ -50,7 +57,7 @@ export default function Listagem() {
   }
 
   useFocusEffect(
-    useCallback(() => { 
+    useCallback(() => {
       loadData(convertDateFormat(dtIni), convertDateFormat(dtFim));
     }, [dtIni, dtFim])
   );
@@ -67,7 +74,7 @@ export default function Listagem() {
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
-      
+
       <View className='flex flex-row w-full h-48'>
         <View className='flex justify-between items-center bg-white  p-4 gap-2 border-[1px] border-orange-300'>
           <Text className={dataResume.resume > 0 ? 'text-xl font-bold text-green-700' : 'text-xl font-bold text-red-700'}>SALDO</Text>
@@ -110,16 +117,16 @@ export default function Listagem() {
           }
         />
       </View>
-      
+
       <Modal
         transparent={true}
         animationType='slide'
         visible={isModalBuyOpen}
         onRequestClose={() => {
           setIsModalBuyOpen(!isModalBuyOpen)
-      }}>
-        <ViewBuy 
-          closeModal={setIsModalBuyOpen} 
+        }}>
+        <ViewBuy
+          closeModal={setIsModalBuyOpen}
           id={idBuy}
         />
       </Modal>
@@ -130,9 +137,9 @@ export default function Listagem() {
         visible={isModalSaleOpen}
         onRequestClose={() => {
           setIsModalSaleOpen(!isModalSaleOpen)
-      }}>
-        <ViewSale 
-          closeModal={setIsModalSaleOpen} 
+        }}>
+        <ViewSale
+          closeModal={setIsModalSaleOpen}
           id={idSale}
         />
       </Modal>
@@ -143,11 +150,11 @@ export default function Listagem() {
         visible={isModalFilterOpen}
         onRequestClose={() => {
           setIsModalFilterOpen(!isModalFilterOpen)
-      }}>
+        }}>
         <View className='flex flex-1 bg-orange-50 px-4 mt-28'>
           <View>
             <Text>Data Inicial:</Text>
-            <Input 
+            <Input
               control={control}
               formProps={{
                 name: 'dateIni',
@@ -160,7 +167,7 @@ export default function Listagem() {
           </View>
           <View>
             <Text>Data Final:</Text>
-            <Input 
+            <Input
               control={control}
               formProps={{
                 name: 'dateFim',

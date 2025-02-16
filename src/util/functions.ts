@@ -45,3 +45,10 @@ export const convertDateFormat = (dateStr: string): string => {
   // Retorna no formato "yyyy-MM-dd"
   return dateTime.toFormat("yyyy-MM-dd");
 };
+
+export const formatarData = (data: Date) => {
+  const dia = String(data.getDate()).padStart(2, '0');
+  const mes = String(data.getMonth() + 1).padStart(2, '0');
+  const ano = data.getFullYear();
+  return `${dia}/${mes}/${ano}`;
+};

@@ -157,7 +157,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           control={control}
           formProps={{
             name: 'photo',
-            defaultValue: product?.photo,
+            defaultValue: product?.photo || 'sem foto',
           }}
           inputProps={{
             placeholder: "Imagem do produto"

@@ -82,5 +82,14 @@ export function useProductSupabase() {
     }
   }
   
+  async function insertStorage(img: string) {
+    try {
+      const { data } = await supabase.storage.from('Bucket_fotos').upload(img,img)
+      return data
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return { create, update, remove, list, searchById, findByName, searchByName }
 }

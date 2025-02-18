@@ -1,5 +1,6 @@
-import { Text, View, KeyboardAvoidingView, Platform, Alert, Modal, ScrollView } from "react-native";
+import { Text, View, KeyboardAvoidingView, Platform, Alert, Modal, ScrollView, TouchableOpacity, Image } from "react-native";
 import { useForm } from "react-hook-form";
+import * as ImagePicker from 'expo-image-picker';
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Form/Input";
 import { useState, useEffect } from "react";
@@ -8,6 +9,7 @@ import { useCategorySupabase } from "@/src/database/useCategorySupabase";
 import { IProduct, ISelectProps } from "@/src/constants/interface";
 import FrmCategory from "./category";
 import Select from "@/src/components/Form/Select";
+import { Feather } from "@expo/vector-icons";
 
 type Props = {
   closeModal: (value: boolean) => void;
@@ -19,9 +21,38 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
   const { handleSubmit, control, reset, formState:{errors}, setValue } = useForm<IProduct>({})
   const categoryDatabase = useCategorySupabase()
   const productDatabase = useProductSupabase()
+  const [imgPhoto, setImgPhoto] = useState<string>('../../assets/images/alpys.png')
   const [isModalCategoryOpen, setIsModalCategoryOpen] = useState(false)
   const [selectCategories, setSelectCategories] = useState<ISelectProps[]>([{ label: '', value: '' }])
   const [id, setId] = useState('')
+
+  const PickImageLibrary = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1
+    })
+    // console.log(result)
+    if (!result.canceled) {
+      setImgPhoto(result.assets[0].uri)
+    }
+  }
+
+  const PickImageCamera = async () => {
+    //LoadImage();
+    let permissionResult = await ImagePicker.requestCameraPermissionsAsync()
+    if (permissionResult.granted === false) {
+      alert("Você recusou permitir que o app acesse a camera!");
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync();
+    console.log(result)
+    if (!result.canceled) {
+      setImgPhoto(result.assets[0].uri);
+      console.log(result.assets[0].uri);
+    }
+  }
 
   async function loadCategories() {
     try {
@@ -45,7 +76,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           category: product.category,
           name: data.name, 
           price: data.price, 
-          photo: data.photo
+          photo: imgPhoto
         })
         Alert.alert('Produto atualizado com sucesso!')
       } else {
@@ -53,7 +84,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           category: data.category, 
           name: data.name, 
           price: data.price, 
-          photo: data.photo
+          photo: imgPhoto
         })
         Alert.alert('Produto incluído com sucesso!')
         reset()
@@ -75,6 +106,8 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
       setId(String(product.id))
       setValue('category', product.category)
       setValue('price', String(product.price))
+      setValue('photo', product.photo)
+      setImgPhoto(product.photo)
     }
   }, [])
 
@@ -153,7 +186,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           }}
         />
 
-        <Input 
+        {/* <Input 
           control={control}
           formProps={{
             name: 'photo',
@@ -162,7 +195,22 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           inputProps={{
             placeholder: "Imagem do produto"
           }}
-        />
+        /> */}
+
+        <View className="flex-col w-full my-4">
+          <View className="flex-row justify-start w-full h-10 items-center gap-2">
+            <Text className="font-semibold text-xl">Foto:</Text>
+            <TouchableOpacity onPress={PickImageLibrary}>
+              <Feather name="image" size={28} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={PickImageCamera}>
+              <Feather name='camera' size={28} />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <Image width={100} height={100} source={{ uri: imgPhoto }} />
+          </View>
+        </View>
 
         <Button title="Salvar" onPress={handleSubmit(handleSave)} />
         <Button title="Fechar" type="Close" onPress={handleClose} />

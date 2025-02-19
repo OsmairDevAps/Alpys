@@ -1,6 +1,7 @@
 import { Text, View, KeyboardAvoidingView, Platform, Alert, Modal, ScrollView, TouchableOpacity, Image } from "react-native";
 import { useForm } from "react-hook-form";
 import * as ImagePicker from 'expo-image-picker';
+import { uploadImageToSupabase } from "@/src/components/uploadImage";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Form/Input";
 import { useState, useEffect } from "react";
@@ -21,7 +22,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
   const { handleSubmit, control, reset, formState:{errors}, setValue } = useForm<IProduct>({})
   const categoryDatabase = useCategorySupabase()
   const productDatabase = useProductSupabase()
-  const [imgPhoto, setImgPhoto] = useState<string>('../../assets/images/alpys.png')
+  const [imgPhoto, setImgPhoto] = useState<string>('../../../assets/images/alpys.png')
   const [isModalCategoryOpen, setIsModalCategoryOpen] = useState(false)
   const [selectCategories, setSelectCategories] = useState<ISelectProps[]>([{ label: '', value: '' }])
   const [id, setId] = useState('')
@@ -33,24 +34,20 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
       aspect: [4, 4],
       quality: 1
     })
-    // console.log(result)
     if (!result.canceled) {
       setImgPhoto(result.assets[0].uri)
     }
   }
 
   const PickImageCamera = async () => {
-    //LoadImage();
     let permissionResult = await ImagePicker.requestCameraPermissionsAsync()
     if (permissionResult.granted === false) {
       alert("Você recusou permitir que o app acesse a camera!");
       return;
     }
     const result = await ImagePicker.launchCameraAsync();
-    console.log(result)
     if (!result.canceled) {
       setImgPhoto(result.assets[0].uri);
-      console.log(result.assets[0].uri);
     }
   }
 
@@ -70,6 +67,9 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
 
   async function handleSave(data: any) {
     try {
+      const datahora = new Date().getTime()
+      const result = await uploadImageToSupabase(imgPhoto, data.name + datahora)
+      setImgPhoto(String(result))
       if (product) {
         await productDatabase.update({
           id: Number(id), 
@@ -91,8 +91,8 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
       }
       await listProducts
       closeModal(false)
-    } catch (error) {
-      console.log(error)      
+  } catch (error:any) {
+      Alert.alert('Ocorreu um erro inesperado: ', error.message)
     }
   }
 
@@ -186,17 +186,6 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           }}
         />
 
-        {/* <Input 
-          control={control}
-          formProps={{
-            name: 'photo',
-            defaultValue: product?.photo || 'sem foto',
-          }}
-          inputProps={{
-            placeholder: "Imagem do produto"
-          }}
-        /> */}
-
         <View className="flex-col w-full my-4">
           <View className="flex-row justify-start w-full h-10 items-center gap-2">
             <Text className="font-semibold text-xl">Foto:</Text>
@@ -207,8 +196,8 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
               <Feather name='camera' size={28} />
             </TouchableOpacity>
           </View>
-          <View>
-            <Image width={100} height={100} source={{ uri: imgPhoto }} />
+          <View className="flex flex-row justify-center items-center mt-2 w-full h-auto">
+            <Image width={50} height={50} className="w-28 h-28" source={{ uri: imgPhoto }} />
           </View>
         </View>
 

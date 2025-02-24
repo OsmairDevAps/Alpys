@@ -1,23 +1,6 @@
 import { supabase } from "./supabase";
 
 export function useTransactionSupabase() {
-  async function listGraphic() {
-    try {
-      const { data } = await supabase.rpc('get_transactions_summary');
-      return data
-    } catch (error) {
-      throw error
-    }
-  }
-
-  async function list() {
-    try {
-      const { data } = await supabase.rpc('get_transaction_list');
-      return data
-    } catch (error) {
-      throw error
-    }
-  }
   
   async function listResume(dtIni: string, dtFim: string) {
     try {
@@ -46,5 +29,16 @@ export function useTransactionSupabase() {
     }
   }
   
+  async function listDebtPerCustomer(nameClient: string) {
+    try {
+      const { data } = await supabase
+      .from('transactions')
+      .select('.')
+      .eq('cient_name', nameClient)
+    } catch (error) {
+      throw error
+    }
+  }
+
   return { listResume, listTransactions }
 }

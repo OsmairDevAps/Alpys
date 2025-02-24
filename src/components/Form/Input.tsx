@@ -18,7 +18,7 @@ const Input = forwardRef<TextInput, Props> (({ icon, formProps, control, inputPr
       control={control}
       render = {({ field }) => (
         <View className="w-full mb-4">
-          <View className="flex-row items-center text-orange-950 bg-orange-50 border-[1px] border-orange-500 rounded-lg">
+          <View className="flex-row items-center text-orange-950 bg-orange-50 border-[1px] border-orange-500 w-full h-16 rounded-lg">
             {icon &&
               <View className="p-4 justify-center items-center border-r-[1px] border-orange-500">
                 <Feather 

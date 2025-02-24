@@ -12,7 +12,7 @@ export default function Input({ label, placeholder, ...rest }: Props) {
       <TextInput 
         {...rest}
         placeholderTextColor='#a8a29e'
-        className="w-full h-14 text-lg p-4 text-orange-950 bg-orange-50 border-[1px] border-orange-500 rounded-lg"
+        className="w-full h-16 text-lg p-4 text-orange-950 bg-orange-50 border-[1px] border-orange-500 rounded-lg"
         placeholder={placeholder}
       />
     </View>

@@ -84,5 +84,30 @@ export function useSaleSupabase() {
     }
   }
 
-  return { create, update, remove, list, searchById, searchByPeriod }
+  async function listClientsNotPaid() {
+    try {
+      const { data, error } = await supabase.rpc('get_clients_not_paid')
+      if(error) {
+        console.log(error)
+      }
+      return data 
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async function listResumeClients(nameClient: string) {
+    try {
+      const { data } = await supabase
+      .from('transactions')
+      .select('id, client_name, product_name, datetransaction, amount, price')
+      .eq('client_name', nameClient)
+      .order('client_name', {ascending: true})
+      return data
+    } catch (error) {
+      throw error
+    }
+  }
+
+  return { create, update, remove, list, searchById, searchByPeriod, listClientsNotPaid, listResumeClients }
 }

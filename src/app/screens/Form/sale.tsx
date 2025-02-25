@@ -131,12 +131,6 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
     await listSales
   }
   
-  function handleTotalPrice(qty:string, price: number) {
-    setAmount(qty);
-    setPrice(price)
-    setTotalPrice(Number(qty) * price);
-  };
-
   const handleQuantityChange = (text: string) => {
     const qty = parseInt(text) || 0;
     setAmount(text);

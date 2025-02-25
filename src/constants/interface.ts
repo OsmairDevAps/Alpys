@@ -68,6 +68,14 @@ export interface ITSale {
   datetransaction: string;
   ispaid: boolean;
 }
+export interface ITResumeSale {
+  id: number;
+  product_name: string;
+  client_name: string;
+  amount: string;
+  price: string;
+  datetransaction: string;
+}
 export interface IDataTransaction {
   id: number;
   name: string;

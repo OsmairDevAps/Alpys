@@ -3,9 +3,10 @@ import { View, Modal, FlatList, Alert } from "react-native";
 import Header from "@/src/components/Header";
 import FrmSale from "../screens/Form/sale";
 import { CardSale } from "@/src/components/Card/sale";
-import { ITSale } from "@/src/constants/interface";
+import { ITResumeSale, ITSale } from "@/src/constants/interface";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
 import HeaderScreen from "@/src/components/HeaderScreen";
+import ResumeSale from "../screens/view/resumeSale";
 
 export default function Sales() {
   const saleDatabase = useSaleSupabase()
@@ -13,6 +14,8 @@ export default function Sales() {
   const [sales, setSales] = useState<ITSale[]>([])
   const [nullSale, setNullSale] = useState<ITSale>()
   const [sale, setSale] = useState<ITSale>()
+  const [resumeSale, setResumeSale] = useState<ITResumeSale[]>([])
+  const [isModalFilterOpen, setIsModalFilterOpen] = useState(false)
   
   async function listSales() {
     try {
@@ -45,6 +48,10 @@ export default function Sales() {
     setIsModalOpen(true)
   }
 
+  function openModalFilter() {
+    setIsModalFilterOpen(true)
+  }
+
   useEffect(() => {
     listSales()
   },[])
@@ -52,7 +59,13 @@ export default function Sales() {
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
-      <HeaderScreen titleScreen="VENDAS" titleButton="Nova" onPress={openModal} />
+      <HeaderScreen 
+        titleScreen="VENDAS" 
+        titleButton="Nova" 
+        onPress={openModal} 
+        hasFilter={true} 
+        onPressFilter={openModalFilter} 
+      />
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
@@ -75,10 +88,22 @@ export default function Sales() {
         onRequestClose={() => {
            setIsModalOpen(!isModalOpen)
       }}>
-        <FrmSale 
+        <FrmSale
           closeModal={setIsModalOpen} 
           listSales={listSales()} 
           sale={sale} 
+        />
+      </Modal>
+ 
+      <Modal
+        transparent={true}
+        animationType='slide'
+        visible={isModalFilterOpen}
+        onRequestClose={() => {
+          setIsModalFilterOpen(!isModalFilterOpen)
+      }}>
+        <ResumeSale
+          closeModal={setIsModalFilterOpen} 
         />
       </Modal>
 

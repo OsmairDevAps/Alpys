@@ -1,16 +1,23 @@
-import { useEffect, useState } from "react";
-import { Switch, Text, View, KeyboardAvoidingView, Platform, Alert, TouchableOpacity } from "react-native";
+import { useEffect, useState, memo } from "react";
+import { Switch, Text, View, KeyboardAvoidingView, Platform, Alert, Modal } from "react-native";
 import Button from "@/src/components/Button";
 import Input from "@/src/components/Input";
 import { ITSale } from "@/src/constants/interface";
 import { useProductSupabase } from "@/src/database/useProductSupabase";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
 import { Picker } from "@react-native-picker/picker";
+import { useClientSupabase } from "@/src/database/useClientSupabase";
+import FrmClient from "./client";
 
 type SaleProps = {
   closeModal: (value: boolean) => void;
   listSales?: Promise<void>;
   sale?: ITSale;
+}
+
+type SelectClientProps = {
+  id: number;
+  name: string;
 }
 
 type SelectProductProps = {
@@ -21,7 +28,11 @@ type SelectProductProps = {
 
 export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
   const productDatabase = useProductSupabase()
+  const clientDatabase = useClientSupabase()
   const saleDatabase = useSaleSupabase()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [clients, setClients] = useState<SelectClientProps[]>([]);
+  const [selectedClient, setSelectedClient] = useState({} as SelectClientProps);
   const [products, setProducts] = useState<SelectProductProps[]>([]);
   const [selectedProduct, setSelectedProduct] = useState({} as SelectProductProps);
   const [nameClient, setNameClient] = useState('')
@@ -34,22 +45,22 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
   const [dateTransaction, setDateTransaction] = useState('')
   const [isPaid, setIsPaid] = useState(false)
   const [totalPrice, setTotalPrice] = useState(0)
-    
-  async function listProducts() {
+
+  async function listClients() {
     try {
-      const response = await productDatabase.list()
+      const response = await clientDatabase.list()
       if(response) {
-        let newArray: SelectProductProps[] = response.map(pro => {
-          return { id: pro.id, name: String(pro.category) +' - '+ String(pro.name), price: pro.price }
+        let newArray: SelectClientProps[] = response.map(cli => {
+          return { id: cli.id, name: String(cli.name) }
         })
-        setProducts(newArray)
+        setClients(newArray)
       }
     } catch (error) {
       console.log(error)
     }
   }
 
-  async function loadProduct(name: string) {
+  async function listProducts() {
     try {
       const response = await productDatabase.list()
       if(response) {
@@ -137,11 +148,16 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
     setTotalPrice(qty * (selectedProduct.price || 0));
   };
 
+  function handleOpenModal() {
+    setIsModalOpen(true)
+  }
+
   function handleClose() {
     closeModal(false)
   }
 
   useEffect(() => {
+    listClients()
     listProducts()
     if(sale) {
       setNameProduct(sale.product_name)
@@ -169,12 +185,37 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
         </View>
         {!sale ?
           <View className="w-full">
-            <Input 
-              placeholder="Nome do Cliente"
-              value={nameClient}
-              onChangeText={setNameClient}
-            />
-            {errorClient ? <Text className='text-red-600'>{errorClient}</Text> : null}
+            <View className="flex flex-row w-full justify-start items-center gap-4">
+              <View className="flex-1 w-full h-16 text-orange-950 bg-orange-50 border-[1px] border-orange-500 rounded-lg">
+                <Picker
+                  selectedValue={selectedClient.id}
+                  onValueChange={(itemValue) => {
+                    const client = clients.find((c) => c.id === itemValue);
+                    if (client) {
+                      setSelectedClient(client);
+                      setNameClient(client.name);
+                    }
+                  }}
+                >
+                  <Picker.Item 
+                    label='Cliente'
+                    value='0'
+                    color='#adacac'
+                  />
+                  {clients.map((client) => (
+                    <Picker.Item 
+                      key={client.id} 
+                      label={client.name} 
+                      value={client.id} 
+                    />
+                  ))}
+                </Picker>
+                {errorClient ? <Text className='text-red-600'>{errorClient}</Text> : null}
+              </View>
+              <View className="w-16">
+                <Button title="+ CLI" onPress={handleOpenModal} />
+              </View>
+            </View>
 
             <View className="w-full h-16 text-orange-950 bg-orange-50 border-[1px] border-orange-500 rounded-lg">
               <Picker
@@ -189,7 +230,7 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
                 }}
               >
                 <Picker.Item 
-                  label='Selecione'
+                  label='Produto'
                   value='0'
                   color='#adacac'
                 />
@@ -250,6 +291,18 @@ export default function FrmSale({ closeModal, listSales, sale }:SaleProps) {
         <Button title="Fechar" type="Close" onPress={handleClose} />
       </View>
 
+      <Modal
+        transparent={true}
+        animationType='slide'
+        visible={isModalOpen}
+        onRequestClose={() => {
+           setIsModalOpen(!isModalOpen)
+      }}>
+        <FrmClient
+          closeModal={setIsModalOpen} 
+          listClients={listClients()} 
+        />
+      </Modal>
     </KeyboardAvoidingView>
   )
 }

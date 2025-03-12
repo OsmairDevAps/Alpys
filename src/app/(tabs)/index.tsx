@@ -75,7 +75,7 @@ export default function Listagem() {
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
       <Header />
 
-      <View className='flex flex-row w-full h-48'>
+      <View className='flex flex-row w-full h-44'>
         <View className='flex justify-between items-center bg-white  p-4 gap-2 border-[1px] border-orange-300'>
           <Text className={dataResume.resume > 0 ? 'text-xl font-bold text-green-700' : 'text-xl font-bold text-red-700'}>SALDO</Text>
           <Text className={dataResume.resume > 0 ? 'text-4xl font-bold text-green-700' : 'text-4xl font-bold text-red-700'}>
@@ -109,7 +109,7 @@ export default function Listagem() {
         </View>
         <Text className='font-semibold text-md'>Período: {dtIni} a {dtFim}</Text>
         <FlatList
-          className='flex h-[460px]'
+          className='flex h-[410px]'
           data={dataTransaction}
           keyExtractor={item => String(item.id)}
           renderItem={({ item }) =>

@@ -18,7 +18,7 @@ export default function ResumeSale({closeModal}:ResumeSaleProps) {
   const [clients, setClients] = useState<ClientNotPayd[]>([])
   const [resumeClients, setResumeClients] = useState<ITResumeSale[]>([])
   const [selectedClient, setSelectedClient] = useState('')
-  let total_price=0
+  const [totalPrice, setTotalPrice] = useState(0)
 
   async function listClients() {
     try {
@@ -36,10 +36,8 @@ export default function ResumeSale({closeModal}:ResumeSaleProps) {
       const response = await saleDatabase.listResumeClients(nameClient)
       if (response) {
         setResumeClients(response)
-        response.map(item => {
-          total_price = Number(total_price) + Number(item.price)
-        })
-        
+        const total_price = response.reduce((acc, item) => acc + Number(item.price), 0);
+        setTotalPrice(total_price)
       }
     } catch (error) {
       console.log(error)      
@@ -101,7 +99,7 @@ export default function ResumeSale({closeModal}:ResumeSaleProps) {
       <View className="flex flex-row gap-2 w-full h-10 justify-start items-center bg-orange-50">
         <Text className="flex-1 text-orange-950 font-semibold text-md">TOTAL:</Text>
         <Text className="w-24 text-orange-950 font-semibold text-md">
-          {Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'}).format(total_price)}
+          {Intl.NumberFormat('pt-BR', {style: 'currency', currency: 'BRL'}).format(totalPrice)}
         </Text>
       </View>
 

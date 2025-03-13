@@ -78,9 +78,9 @@ export default function FrmClient({ closeModal, listClients, client }:Props) {
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View className='flex flex-1 items-center justify-start bg-orange-950 px-4 mt-28'>
+      <View className='flex flex-1 items-center justify-start bg-orange-50 px-4 mt-28'>
         <View className="flex flex-row justify-between items-center w-full h-10 my-2">
-          <Text className="text-lg font-bold text-orange-50">CADASTRO DE CLIENTES</Text>
+          <Text className="text-lg font-bold text-orange-950">CADASTRO DE CLIENTES</Text>
         </View>
         <Input 
           placeholder="Nome do Cliente"
@@ -100,7 +100,7 @@ export default function FrmClient({ closeModal, listClients, client }:Props) {
             data={clients}
             keyExtractor={item => String(item.id)}
             renderItem={({ item, index }) => 
-              <CardClient item={item} onDelete={() => handleDelete(item.id)} />
+              <CardClient item={item} onDelete={() => handleDelete(item.id)} color={index % 2 === 0 ? "bg-orange-100" : "bg-white"} />
              }
           />
         </View>

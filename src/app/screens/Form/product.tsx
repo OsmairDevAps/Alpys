@@ -129,8 +129,8 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
         
         {!product ? 
           <View className="flex flex-row w-full justify-center items-center gap-2">
-            <View className="flex-1">
-            <Select 
+            <View className="flex-1 justify-center items-center">
+              <Select 
                 error={errors.category?.message?.toString()}
                 control={control}
                 arrayList={selectCategories}
@@ -143,8 +143,8 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
                 }}
               />
             </View>
-            <View className="w-32">
-              <Button title="+ Categoria" onPress={() => setIsModalCategoryOpen(true)} />
+            <View className="w-28 h-[66px]">
+              <Button type="Mini" title="+ Categoria" onPress={() => setIsModalCategoryOpen(true)} />
             </View>
           </View>
         :
@@ -198,6 +198,7 @@ export default function FrmProduct({ closeModal, listProducts, product }:Props) 
           </View>
           <View className="flex flex-row justify-center items-center mt-2 w-full h-auto">
             <Image width={50} height={50} className="w-28 h-28" source={{ uri: imgPhoto }} />
+            <Image width={50} height={50} className="w-28 h-28" source={{ uri: '../../../assets/images/alpys.png' }} />
           </View>
         </View>
 

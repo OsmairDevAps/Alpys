@@ -16,7 +16,30 @@ export default function Sales() {
   const [sale, setSale] = useState<ITSale>()
   const [resumeSale, setResumeSale] = useState<ITResumeSale[]>([])
   const [isModalFilterOpen, setIsModalFilterOpen] = useState(false)
+  const [dataSale, setDataSale] = useState<ITSale[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const loadData = async (page: number) => {
+    setLoading(true);
   
+    const itemsPerPage = 10; // Quantidade de itens por página
+    const from = (page - 1) * itemsPerPage;
+    const to = from + itemsPerPage - 1;
+  
+    const newData = await saleDatabase.listPagination(from, to)
+    if(newData) {
+      if (newData.length === 0) {
+        setHasMore(false);
+      } else {
+        setDataSale((prevData) => [...prevData, ...newData]);
+        setPage((prevPage) => prevPage + 1);
+      }
+    }
+    setLoading(false);
+  };
+
   async function listSales() {
     try {
       const response = await saleDatabase.list()
@@ -53,7 +76,8 @@ export default function Sales() {
   }
 
   useEffect(() => {
-    listSales()
+    loadData(page);
+    // listSales()
   },[])
 
   return (
@@ -69,7 +93,7 @@ export default function Sales() {
 
       <FlatList 
         style={{width: '100%', paddingLeft: 16, paddingRight: 16}}
-        data={sales}
+        data={dataSale}
         keyExtractor={item => String(item.id)}
         contentContainerStyle={{ gap: 16 }}
         renderItem={({ item }) => 

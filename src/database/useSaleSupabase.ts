@@ -51,6 +51,22 @@ export function useSaleSupabase() {
       .from('transactions')
       .select('*')
       .eq('modality', 'sale')
+      .order('created_at', {ascending: false})
+      return data
+    } catch (error) {
+      throw error
+    }
+  }
+  
+  
+  async function listPagination(from: number, to: number) {
+    try {
+      const { data } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('modality', 'sale')
+      .range(from, to)
+      .order('created_at', {ascending: false})
       return data
     } catch (error) {
       throw error
@@ -109,5 +125,5 @@ export function useSaleSupabase() {
     }
   }
 
-  return { create, update, remove, list, searchById, searchByPeriod, listClientsNotPaid, listResumeClients }
+  return { create, update, remove, list, listPagination, searchById, searchByPeriod, listClientsNotPaid, listResumeClients }
 }

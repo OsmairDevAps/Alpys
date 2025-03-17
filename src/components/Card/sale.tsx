@@ -11,7 +11,7 @@ type Props = TouchableOpacityProps & {
 export function CardSale({item, onDelete, onUpdate, ...rest}: Props) {
   return (
     <View className="flex flex-row justify-between items-center">
-      <TouchableOpacity className="w-80 border-dotted border-orange-50 border-[1px]" {...rest}>
+      <View className="w-80 border-dotted border-orange-50 border-[1px]" {...rest}>
           <View className="flex flex-row gap-2">
             <Text className="text-lg font-bold">Cliente:</Text>
             <Text className="text-lg">{item.client_name}</Text>
@@ -41,7 +41,7 @@ export function CardSale({item, onDelete, onUpdate, ...rest}: Props) {
             <Text className="text-lg font-bold">Data:</Text>
             <Text className="text-lg">{item.datetransaction}</Text>
           </View>
-      </TouchableOpacity>
+      </View>
 
       <TouchableOpacity onPress={onUpdate} className="border-[1px] border-orange-300 p-2 rounded-lg">
         <Feather name="edit-2" size={24} />

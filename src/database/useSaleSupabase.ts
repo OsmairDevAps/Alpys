@@ -58,7 +58,6 @@ export function useSaleSupabase() {
     }
   }
   
-  
   async function listPagination(from: number, to: number) {
     try {
       const { data } = await supabase

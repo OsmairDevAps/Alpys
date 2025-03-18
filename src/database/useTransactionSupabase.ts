@@ -22,6 +22,7 @@ export function useTransactionSupabase() {
         .select('*')
         .gte('datetransaction', dtIni)
         .lte('datetransaction', dtFim)
+        .limit(10)
         .order('datetransaction', { ascending: false });
       return data
     } catch (error) {

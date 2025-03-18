@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Text, View, FlatList, Modal, TouchableOpacity } from 'react-native';
+import { Text, View, FlatList, Modal, TouchableOpacity, ListRenderItem } from 'react-native';
 import useFinance from '@/src/app/contexts/transactionContext';
 import { useForm } from 'react-hook-form';
 import Header from '@/src/components/Header';
@@ -12,6 +12,7 @@ import { Feather } from '@expo/vector-icons';
 import Input from '@/src/components/Form/Input';
 import Button from '@/src/components/Button';
 import { convertDateFormat, formatarData } from '@/src/util/functions';
+import { IDataTransaction } from '@/src/constants/interface';
 
 type FilterProps = {
   dateIni: string;
@@ -56,20 +57,15 @@ export default function Listagem() {
     setIsModalFilterOpen(false)
   }
 
+  const renderItem: ListRenderItem<IDataTransaction> = ({item}) => (
+    <ItemList item={item} onPress={() => redirect(item.modality, item.id)} />
+  )
+  
   useFocusEffect(
     useCallback(() => {
       loadData(convertDateFormat(dtIni), convertDateFormat(dtFim));
     }, [dtIni, dtFim])
   );
-
-  if (isLoading) {
-    return (
-      <View className='flex-1 justify-center items-center'>
-        <LoadingLogo />
-        <Text className='mt-2 text-orange-500'>Carregando...</Text>
-      </View>
-    )
-  }
 
   return (
     <View className='flex flex-1 items-center justify-start bg-orange-50'>
@@ -98,10 +94,10 @@ export default function Listagem() {
           </View>
         </View>
       </View>
-
+        
       <View className='w-full py-4 px-4'>
         <View className='flex flex-row justify-between items-center'>
-          <Text className='text-orange-950 font-bold text-lg'>ÚLTIMOS LANÇAMENTOS:</Text>
+          <Text className='text-orange-950 font-bold text-lg'>10 ÚLTIMOS LANÇAMENTOS:</Text>
           <TouchableOpacity onPress={() => setIsModalFilterOpen(true)} className='flex flex-row gap-2 justify-center items-center'>
             <Feather name='sliders' size={20} />
             <Text className='font-semibold'>Filtrar</Text>
@@ -112,9 +108,7 @@ export default function Listagem() {
           className='flex h-[410px]'
           data={dataTransaction}
           keyExtractor={item => String(item.id)}
-          renderItem={({ item }) =>
-            <ItemList item={item} onPress={() => redirect(item.modality, item.id)} />
-          }
+          renderItem={renderItem}
         />
       </View>
 
@@ -182,6 +176,7 @@ export default function Listagem() {
         </View>
       </Modal>
     </View>
+            
   );
 }
 

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { View, Modal, FlatList, Alert } from "react-native";
+import { View, Modal, FlatList, Alert, ActivityIndicator, ListRenderItem } from "react-native";
 import Header from "@/src/components/Header";
 import FrmSale from "../screens/Form/sale";
 import { CardSale } from "@/src/components/Card/sale";
-import { ITResumeSale, ITSale } from "@/src/constants/interface";
+import { ITSale } from "@/src/constants/interface";
 import { useSaleSupabase } from "@/src/database/useSaleSupabase";
 import HeaderScreen from "@/src/components/HeaderScreen";
 import ResumeSale from "../screens/view/resumeSale";
@@ -11,10 +11,8 @@ import ResumeSale from "../screens/view/resumeSale";
 export default function Sales() {
   const saleDatabase = useSaleSupabase()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [sales, setSales] = useState<ITSale[]>([])
   const [nullSale, setNullSale] = useState<ITSale>()
   const [sale, setSale] = useState<ITSale>()
-  const [resumeSale, setResumeSale] = useState<ITResumeSale[]>([])
   const [isModalFilterOpen, setIsModalFilterOpen] = useState(false)
   const [dataSale, setDataSale] = useState<ITSale[]>([]);
   const [page, setPage] = useState(1);
@@ -22,9 +20,9 @@ export default function Sales() {
   const [hasMore, setHasMore] = useState(true);
 
   const loadData = async (page: number) => {
+    if (loading || !hasMore) return;
     setLoading(true);
-  
-    const itemsPerPage = 10; // Quantidade de itens por página
+    const itemsPerPage = 10;
     const from = (page - 1) * itemsPerPage;
     const to = from + itemsPerPage - 1;
   
@@ -40,22 +38,11 @@ export default function Sales() {
     setLoading(false);
   };
 
-  async function listSales() {
-    try {
-      const response = await saleDatabase.list()
-      if(response){
-        setSales(response)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   async function handleDelete(id: number) {
     try {
       await saleDatabase.remove(id)
       Alert.alert('Venda excluída com sucesso!')
-      listSales()
+      loadData(page);
     } catch (error) {
       console.log(error)
     }
@@ -75,9 +62,25 @@ export default function Sales() {
     setIsModalFilterOpen(true)
   }
 
+  const renderItem: ListRenderItem<ITSale> = ({ item }) => (
+    <CardSale 
+      item={item}
+      onUpdate={() => handleUpdate(item)}
+      onDelete={() => handleDelete(item.id)}
+    />
+  );
+
+  const renderFooter = () => {
+    if (!loading) return null;
+    return (
+      <View className="p-2 items-center">
+        <ActivityIndicator size="small" color="#F97216" />
+      </View>
+    );
+  };
+
   useEffect(() => {
     loadData(page);
-    // listSales()
   },[])
 
   return (
@@ -96,13 +99,10 @@ export default function Sales() {
         data={dataSale}
         keyExtractor={item => String(item.id)}
         contentContainerStyle={{ gap: 16 }}
-        renderItem={({ item }) => 
-          <CardSale 
-            item={item}
-            onUpdate={() => handleUpdate(item)}
-            onDelete={() => handleDelete(item.id)}
-          />
-        }
+        renderItem={renderItem}
+        onEndReached={() => loadData(page)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
       />
  
       <Modal
@@ -114,7 +114,7 @@ export default function Sales() {
       }}>
         <FrmSale
           closeModal={setIsModalOpen} 
-          listSales={listSales()} 
+          listSales={loadData(page)} 
           sale={sale} 
         />
       </Modal>
